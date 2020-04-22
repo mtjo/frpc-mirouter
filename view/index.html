@@ -124,7 +124,7 @@
             path: "/api-third-party/service/datacenter/get_plugin_status",
             data: data,
             success: function (data) {
-                //alert(data);
+
                 data = $.parseJSON(data);
                 if (data.code == 0) {
                     $('.loading-flower').addClass('fade-out');
@@ -266,7 +266,6 @@
             dataType: 'json',
             data: data,
             success: function (data) {
-                alert(data);
                 data = $.parseJSON(data);
                 if (data.code == 0) {
                     $('#bkspace').html(data.value);
