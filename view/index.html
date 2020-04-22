@@ -29,7 +29,57 @@
 
     </div>
 
-    <div class="wrapper clearfix">
+    <div class="loading-container" >
+        <div class="flower" style="margin: 30% auto"></div>
+    </div>
+
+
+    <div id="base" class="wrapper clearfix" style="display: none">
+        <tbody><tr style="width: 30%;"><td class="text_right">服务器：</td> <td><input type="text" placeholder="127.0.0.1"></td></tr> <tr><td class="text_right">端口：</td> <td><input type="text" placeholder="7000" name="port"></td></tr> <tr><td class="text_right">token：</td> <td><input type="password" placeholder="token"></td></tr> <tr><td class="text_right">日志记录：</td> <td><input type="checkbox" class="mui-switch mui-switch-anim">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <font color="green" href="" style="display: none;">查看</font>
+
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+            <font color="red" href="" style="display: none;">清除</font></td>
+        </tr>
+        <tr style="display: none;">
+            <td class="text_right">日志记录：</td>
+            <td><input placeholder="frpc.log" type="text"></td>
+        </tr>
+        <tr class="text_right" style="display: none;">
+            <td>日志级别：</td>
+            <td><select>
+                <option value="trace">trace</option>
+                <option value="debug">debug</option>
+                <option value="info">info</option>
+                <option value="warn">warn</option>
+                <option value="error">error</option>
+            </select></td>
+        </tr>
+        <tr style="display: none;">
+            <td class="text_right">日志天数：</td>
+            <td><input type="number" name="log_days" placeholder="3"></td>
+        </tr>
+        <tr class="text_right">
+            <td>tcp_mux：</td>
+            <td class="text_left"><input type="checkbox" class="mui-switch mui-switch-anim"></td>
+        </tr>
+        <tr class="text_right">
+            <td>协议：</td>
+            <td><select>
+                <option value="tcp">tcp</option>
+                <option value="kcp">kcp</option>
+            </select></td>
+        </tr>
+        <tr class="text_right">
+            <td>login_fail_exit：</td>
+            <td class="text_left"><input type="checkbox" class="mui-switch mui-switch-anim"></td>
+        </tr>
+        </tbody>
+    </div>
+
+    <div id="advance" class="wrapper clearfix" style="display: none">
         <div class="yo-tip hide" id="tip"></div>
         <div class="content">
             <textarea id="textarea" placeholder="请粘贴frpc配置"></textarea>
@@ -273,7 +323,14 @@
                 //toast(data);
                 data = $.parseJSON(data);
                 if (data.code == 0) {
-                    $('#bkspace').html(decodeURIComponent(data.value));
+                    var selectStr = decodeURIComponent(data.value);
+                    changeSetingType(selectStr);
+                    $('#bkspace').html(selectStr);
+                    $('.btn-group-autosize .btn').each(function () {
+                        if($(this).attr('data-size') == selectStr){
+                            $(this).addClass('active');
+                        }
+                    });
                 } else {
                     $('#bkspace').html(data.msg);
                 }
@@ -315,6 +372,17 @@
         });
     }
 
+    function changeSetingType(type){
+        $('.loading-container').hide();
+        if (type == "简单设置"){
+            $("#advance").hide();
+            $("#base").show();
+        }else{
+            $("#base").hide();
+            $("#advance").show();
+        }
+
+    }
 
     $(document).ready(function () {
 
@@ -332,6 +400,7 @@
             var val = $(this).attr('data-size');
             //toast(val)
             $('#bksizeauto').val(val);
+            changeSetingType(val);
         });
         $('#bksizecust').on('blur', function () {
             if (this.value != '') {
@@ -380,8 +449,8 @@
                 }
             });
         });
-    })
-    ;
+    });
+
 
 </script>
 </body>
