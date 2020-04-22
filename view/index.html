@@ -21,7 +21,7 @@
             </div>
         </div>
     </section>
-    <div id="statusbox" >
+    <div id="statusbox">
         <h2 class="sec-bksize setbkspace clearfix"><span class="k">配置方式:</span>
 
             <div class="v"><span id="bkspace">loading...</span><i class="ico-set"></i></div>
@@ -40,7 +40,10 @@
     </div>
     <h2>使用帮助：</h2>
     <ol>
-        <li>1: File Browser 是一个基于 Web 的文件管理器。它可以使你随时随地的对设备的文件进行基本的管理操作，如：创建、删除、移动、复制等。它除了可以让你进行文件管理之外，还有一些其他的功能。它支持多个用户的管理，而且每个用户可以拥有自己可以访问的文件和权限。它还支持文件分享，就行网盘那样，你可以通过它来向你的朋友分享文件。你还可以用它来执行一些 Linux 命令，比如你想要在当前目录下克隆一个代码库，就可以用它来执行git等命令。</li>
+        <li>1: File Browser 是一个基于 Web
+            的文件管理器。它可以使你随时随地的对设备的文件进行基本的管理操作，如：创建、删除、移动、复制等。它除了可以让你进行文件管理之外，还有一些其他的功能。它支持多个用户的管理，而且每个用户可以拥有自己可以访问的文件和权限。它还支持文件分享，就行网盘那样，你可以通过它来向你的朋友分享文件。你还可以用它来执行一些
+            Linux 命令，比如你想要在当前目录下克隆一个代码库，就可以用它来执行git等命令。
+        </li>
         <li>2: 插件启用后可以通过 http://路由IP地址:端口 访问，（默认账号和密码都是admin，登录后自行修改）</li>
         <li>3: 建议配置 Frpc 插件使用,可以实现公网域名访问</li>
 
@@ -60,7 +63,7 @@
 
         <div class="btn-group btn-group-autosize">
             <div class="btn" data-size="简单设置">简单设置</div>
-            <div class="btn" data-size="单间设置">自定义设置</div>
+            <div class="btn" data-size="自定义设置">自定义设置</div>
         </div>
         <p>说明：</p>
 
@@ -129,10 +132,10 @@
                 if (data.code == 0) {
                     $('.loading-flower').addClass('fade-out');
                     $('.frame').addClass('fade-in');
-                    if(data.isEnable){
+                    if (data.isEnable) {
                         $('#turn').addClass('open');
                         $('.defaulthide').show();
-                    }else{
+                    } else {
                         $('#turn').removeClass('open');
                         $('.defaulthide').hide();
                     }
@@ -222,14 +225,14 @@
             }
         });
     }
-    
 
-    function setType(port) {
+
+    function setType(type) {
         var url = '/api-third-party/service/datacenter/set_config';
         var data = {
             appId: appId,
-            key: 'port',
-            value: port
+            key: 'type',
+            value: type
         };
         routerRequest.request({
             path: url,
@@ -250,12 +253,13 @@
             }
         });
     }
+
     function getType() {
 
         var url = '/api-third-party/service/datacenter/config_info';
         var data = {
             appId: appId,
-            key: 'port'
+            key: 'type'
         };
         if (DEBUG) {
             $.extend(data, {deviceId: deviceId});
@@ -266,9 +270,10 @@
             dataType: 'json',
             data: data,
             success: function (data) {
+                //toast(data);
                 data = $.parseJSON(data);
                 if (data.code == 0) {
-                    $('#bkspace').html(data.value);
+                    $('#bkspace').html(decodeURIComponent(data.value));
                 } else {
                     $('#bkspace').html(data.msg);
                 }
@@ -278,8 +283,40 @@
             }
         });
     }
-     
-    $(document).ready(function(){
+
+    function getFrpcIni() {
+
+        var url = '/api-third-party/service/datacenter/config_info';
+        var data = {
+            appId: appId,
+            key: 'frpc_ini'
+        };
+        if (DEBUG) {
+            $.extend(data, {deviceId: deviceId});
+        }
+        routerRequest.request({
+            path: url,
+            type: "GET",
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                //toast(data);
+                data = $.parseJSON(data);
+                if (data.code == 0) {
+                    $("#textarea").val(decodeURIComponent(data.value))
+                    //$('#bkspace').html(decodeURIComponent(data.value));
+                } else {
+                    $('#bkspace').html(data.msg);
+                }
+            },
+            error: function () {
+                toast('网络异常，请重试');
+            }
+        });
+    }
+
+
+    $(document).ready(function () {
 
         $('.cancel__').click(function () {
             $('.bkspaceset').toggle();
@@ -293,6 +330,7 @@
             $('.btn-group-autosize .btn').removeClass('active');
             $(this).addClass('active');
             var val = $(this).attr('data-size');
+            //toast(val)
             $('#bksizeauto').val(val);
         });
         $('#bksizecust').on('blur', function () {
@@ -303,29 +341,21 @@
         });
         $(document.bkspaceset).on('submit', function (e) {
             e.preventDefault();
-            var auto = $('#bksizeauto').val(),
-                    cust = $('#bksizecust').val(),
-                    val;
-            if (auto == '' && cust == '') {
-                $('#bksizecust').focus();
-            } else {
-                val = cust == '' ? auto : cust;
-                //val = parseInt(val, 10);
-                setType(val);
-            }
-
+            //toast(encodeURIComponent($('#bksizeauto').val()));
+            setType(encodeURIComponent($('#bksizeauto').val()));
         });
         getStatus();
         getType();
+        getFrpcIni();
         $("#button").on("click", function () {
 
             var url = '/api-third-party/service/datacenter/set_config';
-            frpc_config=$("#textarea").val();
-            if (frpc_config.length==0) {
+            frpc_config = $("#textarea").val();
+            if (frpc_config.length == 0) {
                 toast("请添加配置");
                 return;
             }
-            frpc_config=encodeURIComponent(frpc_config);
+            frpc_config = encodeURIComponent(frpc_config);
             var data = {
                 appId: appId,
                 key: 'frpc_ini',
@@ -350,7 +380,8 @@
                 }
             });
         });
-    });
+    })
+    ;
 
 </script>
 </body>
