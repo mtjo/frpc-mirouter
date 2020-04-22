@@ -1,0 +1,198 @@
+@charset "UTF-8";
+body, html {
+    height: 100%;
+    width: 100%
+}
+
+.wrapper, body, html {
+    width: 100%
+}
+
+a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, body, canvas, caption, center, cite, code, dd, del, details, dfn, div, dl, dt, em, embed, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, html, i, iframe, img, input, ins, kbd, label, legend, li, mark, menu, nav, object, ol, output, p, pre, q, ruby, s, samp, section, small, span, strike, strong, sub, summary, sup, table, tbody, td, tfoot, th, thead, time, tr, tt, u, ul, var, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font-weight: 400;
+    vertical-align: baseline
+}
+
+article, aside, details, figcaption, figure, footer, header, menu, nav, section {
+    display: block
+}
+
+body {
+    line-height: 1;
+    -webkit-text-size-adjust: none;
+    -webkit-tap-highlight-color: transparent;
+    font-size: 12px
+}
+
+li, ol, ul {
+    list-style: none
+}
+
+blockquote, q {
+    quotes: none
+}
+
+blockquote:after, blockquote:before, q:after, q:before {
+    content: none
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0
+}
+
+a {
+    color: #7e8c8d;
+    -webkit-backface-visibility: hidden;
+    text-decoration: none
+}
+
+.wrapper {
+    height: auto;
+    min-height: 100%;
+    padding-bottom: 50px
+}
+
+.wrapper .hide {
+    display: none
+}
+
+.wrapper .yo-tip {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    width: 70%;
+    padding: 10px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -moz-background-clip: padding-box !important;
+    background-clip: padding-box !important;
+    -webkit-transform: translate(-50%);
+    -moz-transform: translate(-50%);
+    -ms-transform: translate(-50%);
+    -o-transform: translate(-50%);
+    transform: translate(-50%);
+    background-color: rgba(0, 0, 0, .5);
+    color: #fff;
+    text-align: center;
+    z-index: 9999
+}
+
+.wrapper header {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    height: 240px;
+    display: inline-block;
+    background: -webkit-gradient(linear, left top, left bottom, from(#292e3e), to(#575d6e));
+    background: -webkit-linear-gradient(top, #292e3e, #575d6e);
+    background: -moz-linear-gradient(top, #292e3e, #575d6e);
+    background: -o-linear-gradient(top, #292e3e, #575d6e);
+    background: linear-gradient(to bottom, #292e3e, #575d6e)
+}
+
+.wrapper header .hosts-logo {
+    position: relative;
+    margin: 95px auto 20px;
+    width: 60px;
+    height: 60px;
+    background-image: url(../img/hosts_icon.png);
+    -moz-background-size: 100% 100%;
+    background-size: 100% 100%
+}
+
+.wrapper header .txt-des {
+    position: relative;
+    color: #fff;
+    line-height: 18px
+}
+
+.wrapper .content {
+    padding: 0 4% 70px;
+    text-align: center
+}
+
+.wrapper .content .txt-tip1 {
+    text-align: left;
+    margin-top: 23px;
+    color: rgba(0, 0, 0, .5)
+}
+
+.wrapper .content textarea {
+    position: relative;
+    width: 94%;
+    padding: 3%;
+    margin: 15px auto 10px;
+    border: 1px solid #ccc;
+    -webkit-transform: translateX(-1px);
+    -moz-transform: translateX(-1px);
+    -ms-transform: translateX(-1px);
+    -o-transform: translateX(-1px);
+    transform: translateX(-1px);
+    height: 180px;
+    resize: none;
+    word-break: break-all
+}
+
+.wrapper .content textarea::-webkit-scrollbar {
+    width: 3px
+}
+
+.wrapper .content textarea::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    background-color: #d8d8d8
+}
+
+.wrapper .content .txt-tip2 {
+    text-align: left;
+    font-size: 10px;
+    line-height: 14px;
+    color: rgba(0, 0, 0, .5);
+    margin-bottom: 8px
+}
+
+.wrapper .content .txt-tip2:last-child {
+    margin-bottom: 0
+}
+
+.footer {
+    position: relative;
+    margin-top: -70px;
+    height: 70px;
+    clear: both;
+    overflow: auto
+}
+
+.footer .button {
+    position: relative;
+    margin: 15px 3%;
+    text-align: center;
+    line-height: 40px;
+    width: 94%;
+    height: 40px;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 14px;
+    border: none;
+    background: #2c7dfa
+}
+
+.clearfix {
+    display: inline-block
+}
+
+.clearfix:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden
+}

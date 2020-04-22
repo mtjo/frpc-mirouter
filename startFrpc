@@ -1,0 +1,52 @@
+#!/bin/ash
+logpath='/frpc.log'
+echo "start " >$logpath
+model=$(cat /proc/xiaoqiang/model)
+setconfig model $model
+port=$(getconfig port)
+if [[ -z "$port" ]]; then
+	#statements
+	port=8088
+	setconfig port $port
+fi
+
+getconfig frpc_ini >frpc.ini
+
+app_path='/bin/frpc'
+xq=$model
+if [ "$xq" == "R1D" -o "$xq" == "R2D" -o "$xq" == "R3D"  ]; then
+	app_path='/bin/frpc'
+elif [ "$xq" == "R3" -o "$xq" == "R3P" -o "$xq" == "R3G" -o "$xq" == "R1CM" ]; then
+	app_path='/bin/frpc_mips'
+fi
+#start app_path
+#echo "start $app_path with port: $port" >>$logpath
+#$app_path -c /etc/filebrowser.json -p $port /dev/null 2>&1
+
+PID=$(ps|grep $app_path |grep -v grep|awk '{print $1}')
+echo "pid of filebrowser: $PID" >>$logpath
+
+#setconfig enable on
+enable="on"
+echo "start while" >>$logpath
+while [[ "$enable" == "on" ]]; do
+	#statements
+	enable=$(getconfig enable)
+	if [[ -z "$port" ]]; then
+	    setconfig enable on
+	fi
+	echo "enable: $enable" >>$logpath
+	sleep 3
+done
+echo "end while" >> $logpath
+
+echo "pid of filebrowser to kill: $PID" >>$logpath
+kill $PID
+/bin/killall $app_path
+
+echo "end kill" >>$logpath
+
+echo "pid of $$  to kill" >>$logpath
+kill $$
+echo "stop $app_path" >> $logpath
+#exit 0

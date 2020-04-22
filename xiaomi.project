@@ -1,0 +1,62 @@
+#请输入插件ID。
+plugin_id= "2882303761517415902";
+
+#请输入插件名称。
+name= "frpc";
+
+#请输入插件介绍。
+introduction= "frpc客户端小米路由器插件,frp 是一个可用于内网穿透的高性能的反向代理应用，支持 tcp, udp, http, https 协议。";
+
+#请输入插件简介。
+summary= "frp 是一个可用于内网穿透的高性能的反向代理应用，支持 tcp, udp, http, https 协议。";
+
+#已安装插件图标URL。
+installed_icon= "http://file.market.xiaomi.com/download/AppStore/06ccd84a1755e459139670c2c8db9fe94ff5ce158";
+
+#插件详情图标URL。
+detail_image= "http://file.market.xiaomi.com/download/AppStore/08ccd4fa155fe2595f9673c2c0eb9ce14674358f8";
+
+#可安装插件图标URL。
+market_icon="http://file.market.xiaomi.com/download/AppStore/0cccd84a1755e459139670c2c89b9fe94ff5ce158";
+
+#开发者名称。
+developer= "MTJO";
+
+#请输入插件版本号(格式：xx.xx.xx)。
+version= "1.0.0";
+
+#请输入插件控制页面url。
+control_url= "http://mtjo.net/frpc-mirouter/index.html";
+
+#请输入打包目录(如果插件没有可执行文件，可不用填写)。
+zip_path= "./build/";
+
+#请输入开发者证书文件路径。
+pem_path= "./key/159737223.pem";
+
+#请输入私钥文件路径。
+key_path= "./key/client.key";
+
+#请输入sdk level。
+sdk_level= "5";
+
+#是否支持R1D
+supported_rom= "miwifi_rom";
+
+#是否需要访问公共存储目录
+access_userdata= "true";
+
+access_proc = "true";
+
+access_dev = "true";
+
+#是否需要支持"下载"功能，此项为true才能够使用下载相关的sdk
+support_download= "false";
+
+support_vpn_operation= "false";
+
+#是否需要支持"已连接的设备信息"，此项为true才能够使用链接设备信息相关的sdk
+support_connected_device_info= "false"
+
+#是否需要支持"访问U盘"，此项为true才能够使用访问U盘相关的sdk
+support_usb_disk_mount= "false"

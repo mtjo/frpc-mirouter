@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no"/>
+    <title>Mac备份助手</title>
+    <link rel="stylesheet" href="resource/css/normalize.css">
+    <link rel="stylesheet" href="resource/css/main.css">
+</head>
+<body>
+<div id="container">
+    <header>
+        <img src="resource/img/pic_1.jpg" alt="Mac备份助手">
+    </header>
+    <section>
+        <h1>Mac备份助手</h1>
+
+        <div class="toggle-container">
+            <div class="loading-flower">
+                <div class="flower"></div>
+            </div>
+            <div class="frame" id="turn">
+                <div class="button"></div>
+            </div>
+        </div>
+    </section>
+    <div id="statusbox" style="display:none;">
+        <h2 class="sec-bksize setbkspace clearfix"><span class="k">存储空间设置</span>
+
+            <div class="v"><span id="bkspace">loading...</span><i class="ico-set"></i></div>
+        </h2>
+        <h2>备份记录</h2>
+
+        <div class="bakuphistory"></div>
+        <!--h2 class="cur-username" style="display: none;">
+            <div class="k">已设置Mac恢复密码</div>
+            <div class="sub">当前用户名：<span class="username"></span></div>
+        </h2-->
+        <h2 class="btn-set-password" onclick="openPasswordDialog();" style="display: none;">
+            <div class="k">Mac恢复密码</div>
+            <div class="v"><i class="ico-set"></i></div>
+
+            <div class="sub">设置用户恢复的用户名和密码</div>
+        </h2>
+    </div>
+    <h2>使用帮助：</h2>
+    <ol>
+        <li>1、开启后，在Mac的Finder上找到“MacBackup”盘符并打开它；</li>
+        <li>2、启动Time Machine应用，点击“选择备份磁盘”，输入用户名和密码，把“MacBackup”作为备份磁盘；</li>
+        <li>3、等待片刻，就可以开始备份了~<br/>(目前仅支持OS X 10.9版本以上的Mac电脑，macOS Sierra系统无法使用，Windows系统无法使用)；</li>
+        <li>4、备份目录位于：/userdata/timecapsule，请不要改名或删除；</li>
+        <li>5、由于mac系统的限制，大概会有1%的概率在进行恢复时会导致错误，将引起历史备份无效。</li>
+    </ol>
+</div>
+<div id="loading" class="loading" style="display:none;">正在加载…</div>
+<div id="toast" class="toast" style="display:none;"></div>
+<div class="mask"
+     style="position:fixed;left:0;top:0;z-index:1; width:100%;height:100%;background:rgba(0,0,0,0.4); display:none;"></div>
+<div class="bkspaceset" style="display:none;">
+    <form name="bkspaceset">
+        <input type="hidden" name="bksizeauto" id="bksizeauto">
+
+        <p class="title">存储空间大小</p>
+
+        <p>请设置备份数据占用容量大小</p>
+
+        <div class="btn-group btn-group-autosize">
+            <div class="btn" data-size="10">10GB</div>
+            <div class="btn" data-size="50">50GB</div>
+            <div class="btn" data-size="100">100GB</div>
+            <div class="btn" data-size="800">无限制</div>
+        </div>
+        <p>自定义：</p>
+
+        <p><input type="text" name="bksizecust" id="bksizecust" placeholder="输入数值"> <em>GB</em></p>
+
+        <p class="btns">
+            <button type="submit" class="btn submit">确认</button>
+            <button type="button" class="btn cancel cancel__">取消</button>
+        </p>
+    </form>
+</div>
+<div class="loading-layer">
+    <div class="bg-cont"></div>
+</div>
+<div class="dialog-password" style="display: none;">
+    <div class="dialog">
+        <a href="javascript:closePasswordDialog();" class="btn-close"></a>
+
+        <div class="form-box">
+            <div class="head">设置用于恢复的用户名和密码</div>
+            <div class="body">
+                <div class="input-box">
+                    <label>用户名：</label>
+                    <input type="text" value="" name="username"/>
+                </div>
+                <div class="note note-username">用户名只能包含英文字母和数字</div>
+                <div class="input-box">
+                    <label>密码：</label>
+                    <input type="text" value="" name="password"/>
+                </div>
+                <div class="note note-password">密码只能包含英文字母和数字</div>
+                <button class="btn-confirm">确定</button>
+            </div>
+        </div>
+        <div class="desc">
+            <div class="text">提示：您在Mac上恢复备份时，需要用该用户名和密码</div>
+            <img src="./resource/img/mac-dialog.png"/>
+        </div>
+    </div>
+</div>
+<textarea id="pubkey" style="display: none;">MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC575P9vrx9M6hZR8B0dASMRCzo
+echQnU1vkPMoUwNtBbJKdtJqKYykpyYg7fMB4PAKwYtm1NKstSIgNTL3qKGHUhHK
++TZICZDMLOmmngEPiWYuYlQfVKwoarmgBy4N1CYL+DIbPWBCwbGF36z4iViRQ3SS
+oD5GMZwUWedvSUseTQIDAQAB</textarea>
+<script src="resource/js/jquery-2.1.0.min.js"></script>
+<script src="resource/js/jsencrypt.js"></script>
+<script src="http://app.miwifi.com/js/router_request.js"></script>
+<script type="tmpl/text" id="tplBakhistory">
+<div class="item">
+    {if ($isBackuping)}
+    <h2>
+        <div class="k">{$macname}</div>
+        <div class="sub">正在备份...</div>
+        <div class="sub">已备份：{$grandBytes} , 传输速度{$speed}</div>
+        </h2>
+    {else}
+    <ul class="unstyled">
+        <li><span class="k">设备名称：</span><span class="v">{$macname}</span></li>
+        <li><span class="k">上次备份：</span><span class="v">{$FinishDate}</span></li>
+        <li><span class="k">占用空间：</span><span class="v">{$TotalBytes}</span></li>
+        <li><span class="k">备份位置：</span><span class="v">/userdata/timecapsule/{$macname}.sparsebundle</span></li>
+    </ul>
+    {/if}
+</div>
+
+
+
+</script>
+<script>
+    var appId = "2882303761517170443";
+    //var deviceId = '95cd23e5-3cf7-4d80-9d7c-48bd9ed43ac8'; //'a3d73657-2443-4839-ba09-1a08c1edc445';
+    var deviceId = '41afb19d-7f69-45d0-b6fa-60d550c5b6df'; //'a3d73657-2443-4839-ba09-1a08c1edc445';
+    var DEBUG = false;
+    var lock = false;
+    var errorCode = {
+        2501: '安装插件失败',
+        2502: '控制插件失败',
+        2503: '插件包不存在',
+        2504: '请输入插件ID',
+        2505: '配置信息key不能以数字开头',
+        2506: '此插件正在安装',
+        2507: '此插件已经安装',
+        2508: '插件签名验证错误',
+        2509: '签名类型错误',
+        2510: '更新状态出错',
+        2511: 'Pid不存在',
+        2512: '插件不存在',
+        2513: 'sdk版本过低',
+        2514: 'mount userdisk 出错',
+        2515: '无法获取设备id'
+    };
+    var istoast = false;
+    var toast = function (msg) {
+        if (istoast) {
+            $('#toast').stop(1, 1).hide();
+        }
+        istoast = true;
+        $('#toast').html(msg).fadeIn(400, function () {
+            setTimeout(function () {
+                $('#toast').fadeOut(400);
+                istoast = false;
+            }, 2000);
+        });
+    };
+
+    function byteFormat(number, precision, isarray) {
+        var val,
+                label,
+                ret;
+        precision = precision || 100,
+                isarray = isarray || false;
+        number = parseInt(number, 10);
+        if (number > 1024 * 1024 * 1024) {
+            val = Math.floor(number / 1024 / 1024 / 1024 * precision) / precision;
+            label = 'GB';
+        } else if (number > 1024 * 1024 && number < 1024 * 1024 * 1024) {
+            val = Math.floor(number / 1024 / 1024 * precision) / precision;
+            label = 'MB';
+        } else {
+            val = Math.floor(number / 1024 * precision) / precision;
+            label = 'KB';
+        }
+
+        if (isarray) {
+            ret = [val, label];
+        } else {
+            ret = val + label;
+        }
+
+        return ret;
+    }
+    function getStatus() {
+        var data = {appId: appId};
+        if (DEBUG) {
+            $.extend(data, {deviceId: deviceId});
+        }
+        routerRequest.request({
+            path: "/api-third-party/service/datacenter/get_plugin_status",
+            data: data,
+            success: function (data) {
+                data = $.parseJSON(data);
+                if (data.code == 0) {
+                    $('.loading-flower').addClass('fade-out');
+                    $('.frame').addClass('fade-in');
+                    if (data.isEnable) {
+                        $('#turn').addClass('open');
+                        $('#statusbox').show();
+                        getHistory();
+                        window.tiemr = window.setInterval(getHistory, 10000);
+                        getBakupSpace();
+                        checkUserExist();
+                    } else {
+                        $('#turn').removeClass('open');
+                        window.clearInterval(window.tiemr);
+                        $('#statusbox').hide();
+                    }
+                    $('#turn').bind('click', toggleStatus);
+                } else if (data.code in errorCode) {
+                    toast(errorCode[data.code]);
+                } else {
+                    data.msg && toast(data.msg);
+                }
+            },
+            error: function (data) {
+                toast('获取插件信息失败');
+            }
+        });
+    }
+
+    function toggleStatus(evt) {
+        var target = evt.target;
+        var isOpen = $('#turn').hasClass('open');
+        var url = isOpen ? "/api-third-party/service/datacenter/plugin_disable" : "/api-third-party/service/datacenter/plugin_enable";
+        var text = isOpen ? "关闭" : "打开";
+
+        if (lock) {
+            return
+        }
+        lock = true;
+
+        $('#loading').text('正在' + text + '…').show();
+        var data = {appId: appId};
+        if (DEBUG) {
+            $.extend(data, {deviceId: deviceId});
+        }
+        routerRequest.request({
+            path: url,
+            type: "GET",
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                data = $.parseJSON(data);
+                if (data.code == 0) {
+                    $('#turn').toggleClass('open');
+                } else if (data.code in errorCode) {
+                    toast(errorCode[data.code]);
+                } else {
+                    data.msg && toast(data.msg);
+                }
+                lock = false;
+                $('#loading').hide();
+                setTimeout(function () {
+                    getStatus();
+                }, 1000);
+            },
+            error: function (data) {
+                lock = false;
+                $('#loading').hide();
+                toast('修改插件状态失败');
+            }
+        });
+    }
+    function getHistory() {
+        var url = '/api-third-party/service/datacenter/plugin_control';
+        var data = {
+            appId: appId,
+            info: 'getMacnameSnapshotsPairVec'
+        };
+        if (DEBUG) {
+            $.extend(data, {deviceId: deviceId});
+        }
+        routerRequest.request({
+            path: url,
+            type: "GET",
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                data = $.parseJSON(data);
+                if (data.code == 0) {
+                    var tpl = $('#tplBakhistory').html();
+                    var container = $('.bakuphistory');
+                    var htmlarr = [];
+                    var msg = data.msg;
+                    if (msg.length > 0) {
+                        for (var i = 0; i < msg.length; i++) {
+                            var tpldata = {};
+                            var itemhtml;
+                            var isBackuping = msg[i]['isBackuping'];
+                            tpldata['macname'] = msg[i]['macname'];
+                            tpldata['isBackuping'] = isBackuping;
+                            if (isBackuping) {
+                                tpldata['grandBytes'] = byteFormat(msg[i]['grandBytes']);
+                                tpldata['speed'] = byteFormat(msg[i]['speed']) + '/S';
+                            } else {
+                                var snapShots = msg[i]['snapShots'];
+                                var snapShotslast = snapShots[snapShots.length - 1];
+
+                                var datetime = snapShotslast['FinishDate'];
+                                var datetimearr = datetime.split('-');
+                                var date = datetimearr.slice(0, 3).join('-');
+                                var time = datetimearr[3].substring(0, 2) + ':' + datetimearr[3].substring(2, 4) + ':' + datetimearr[3].substring(4, 6);
+                                tpldata['FinishDate'] = date + ' ' + time;
+                                tpldata['TotalBytes'] = byteFormat(snapShotslast['TotalBytes']);
+                            }
+
+                            itemhtml = tmpl(tpl, tpldata);
+                            htmlarr.push(itemhtml);
+                        }
+                        container.html(htmlarr.join(''));
+                    } else {
+                        container.html('<p class="nodata">暂时没有备份记录</p>');
+                    }
+                }
+            },
+            error: function () {
+
+            }
+        });
+    }
+    function delBakupData() {
+        var url = '/api-third-party/service/datacenter/plugin_control';
+        var data = {
+            appId: appId,
+            info: 'rmSubdirs'
+        };
+        if (DEBUG) {
+            $.extend(data, {deviceId: deviceId});
+        }
+        routerRequest.request({
+            path: url,
+            type: "GET",
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                console.log(data);
+            },
+            error: function () {
+
+            }
+        });
+    }
+    function setBakupSpace(size) {
+        var url = '/api-third-party/service/datacenter/plugin_control';
+        var data = {
+            appId: appId,
+            info: 'setVolSizeLimit:' + size
+        };
+        if (DEBUG) {
+            $.extend(data, {deviceId: deviceId});
+        }
+        routerRequest.request({
+            path: url,
+            type: "GET",
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                data = $.parseJSON(data);
+                if (data.code == 0) {
+                    toast('设置成功');
+                    location.reload(1);
+                } else {
+                    toast(data.msg);
+                }
+            },
+            error: function () {
+                toast('网络异常，请重试');
+            }
+        });
+    }
+    function getBakupSpace() {
+        var url = '/api-third-party/service/datacenter/plugin_control';
+        var data = {
+            appId: appId,
+            info: 'getVolSizeLimit'
+        };
+        if (DEBUG) {
+            $.extend(data, {deviceId: deviceId});
+        }
+        routerRequest.request({
+            path: url,
+            type: "GET",
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                data = $.parseJSON(data);
+                if (data.code == 0) {
+                    $('#bkspace').html(parseInt(data.msg / 1000, 10) + 'GB');
+                } else {
+                    $('#bkspace').html(data.msg);
+                }
+            },
+            error: function () {
+                toast('网络异常，请重试');
+            }
+        });
+    }
+
+    /**
+     * 格式化日期
+     * @method format
+     * @static
+     * @param {Date} d 日期对象
+     * @param {string} pattern 日期格式(y年M月d天h时m分s秒)，默认为"yyyy-MM-dd"
+     * @return {string}  返回format后的字符串
+     * @example
+     var d=new Date();
+     alert(format(d," yyyy年M月d日\n yyyy-MM-dd\n MM-dd-yy\n yyyy-MM-dd hh:mm:ss"));
+     */
+    var format = function (d, pattern) {
+        pattern = pattern || 'yyyy-MM-dd';
+        var y = d.getFullYear().toString(),
+                o = {
+                    M: d.getMonth() + 1, //month
+                    d: d.getDate(), //day
+                    h: d.getHours(), //hour
+                    m: d.getMinutes(), //minute
+                    s: d.getSeconds() //second
+                };
+        pattern = pattern.replace(/(y+)/ig, function (a, b) {
+            return y.substr(4 - Math.min(4, b.length));
+        });
+        for (var i in o) {
+            pattern = pattern.replace(new RegExp('(' + i + '+)', 'g'), function (a, b) {
+                return (o[i] < 10 && b.length > 1) ? '0' + o[i] : o[i];
+            });
+        }
+        return pattern;
+    };
+
+    var tmpl = (function () {
+        /*
+         sArrName 拼接字符串的变量名。
+         */
+        var sArrName = "sArrCMX",
+                sLeft = sArrName + '.push("';
+        /*
+         tag:模板标签,各属性含义：
+         tagG: tag系列
+         isBgn: 是开始类型的标签
+         isEnd: 是结束类型的标签
+         cond: 标签条件
+         rlt: 标签结果
+         sBgn: 开始字符串
+         sEnd: 结束字符串
+         */
+        var tags = {
+            'js': {
+                tagG: 'js',
+                isBgn: 1,
+                isEnd: 1,
+                sBgn: '");',
+                sEnd: ';' + sLeft
+            },
+            //任意js语句, 里面如果需要输出到模板，用print("aaa");
+            'if': {
+                tagG: 'if',
+                isBgn: 1,
+                rlt: 1,
+                sBgn: '");if',
+                sEnd: '{' + sLeft
+            },
+            //if语句，写法为{if($a>1)},需要自带括号
+            'elseif': {
+                tagG: 'if',
+                cond: 1,
+                rlt: 1,
+                sBgn: '");} else if',
+                sEnd: '{' + sLeft
+            },
+            //if语句，写法为{elseif($a>1)},需要自带括号
+            'else': {
+                tagG: 'if',
+                cond: 1,
+                rlt: 2,
+                sEnd: '");}else{' + sLeft
+            },
+            //else语句，写法为{else}
+            '/if': {
+                tagG: 'if',
+                isEnd: 1,
+                sEnd: '");}' + sLeft
+            },
+            //endif语句，写法为{/if}
+            'for': {
+                tagG: 'for',
+                isBgn: 1,
+                rlt: 1,
+                sBgn: '");for',
+                sEnd: '{' + sLeft
+            },
+            //for语句，写法为{for(var i=0;i<1;i++)},需要自带括号
+            '/for': {
+                tagG: 'for',
+                isEnd: 1,
+                sEnd: '");}' + sLeft
+            },
+            //endfor语句，写法为{/for}
+            'while': {
+                tagG: 'while',
+                isBgn: 1,
+                rlt: 1,
+                sBgn: '");while',
+                sEnd: '{' + sLeft
+            },
+            //while语句,写法为{while(i-->0)},需要自带括号
+            '/while': {
+                tagG: 'while',
+                isEnd: 1,
+                sEnd: '");}' + sLeft
+            } //endwhile语句, 写法为{/while}
+        };
+
+        return function (sTmpl, opts) {
+            var N = -1,
+                    NStat = []; //语句堆栈;
+            var ss = [
+                [/\{strip\}([\s\S]*?)\{\/strip\}/g, function (a, b) {
+                    return b.replace(/[\r\n]\s*\}/g, " }").replace(/[\r\n]\s*/g, "");
+                }],
+                [/\\/g, '\\\\'],
+                [/"/g, '\\"'],
+                [/\r/g, '\\r'],
+                [/\n/g, '\\n'], //为js作转码.
+                [
+                    /\{[\s\S]*?\S\}/g, //js里使用}时，前面要加空格。
+                    function (a) {
+                        a = a.substr(1, a.length - 2);
+                        for (var i = 0; i < ss2.length; i++) {
+                            a = a.replace(ss2[i][0], ss2[i][1]);
+                        }
+                        var tagName = a;
+                        if (/^(.\w+)\W/.test(tagName)) {
+                            tagName = RegExp.$1;
+                        }
+                        var tag = tags[tagName];
+                        if (tag) {
+                            if (tag.isBgn) {
+                                var stat = NStat[++N] = {
+                                    tagG: tag.tagG,
+                                    rlt: tag.rlt
+                                };
+                            }
+                            if (tag.isEnd) {
+                                if (N < 0) {
+                                    throw new Error("Unexpected Tag: " + a);
+                                }
+                                stat = NStat[N--];
+                                if (stat.tagG != tag.tagG) {
+                                    throw new Error("Unmatch Tags: " + stat.tagG + "--" + tagName);
+                                }
+                            } else if (!tag.isBgn) {
+                                if (N < 0) {
+                                    throw new Error("Unexpected Tag:" + a);
+                                }
+                                stat = NStat[N];
+                                if (stat.tagG != tag.tagG) {
+                                    throw new Error("Unmatch Tags: " + stat.tagG + "--" + tagName);
+                                }
+                                if (tag.cond && !(tag.cond & stat.rlt)) {
+                                    throw new Error("Unexpected Tag: " + tagName);
+                                }
+                                stat.rlt = tag.rlt;
+                            }
+                            return (tag.sBgn || '') + a.substr(tagName.length) + (tag.sEnd || '');
+                        } else {
+                            return '",(' + a + '),"';
+                        }
+                    }
+                ]
+            ];
+            var ss2 = [
+                [/\\n/g, '\n'],
+                [/\\r/g, '\r'],
+                [/\\"/g, '"'],
+                [/\\\\/g, '\\'],
+                [/\$(\w+)/g, 'opts["$1"]'],
+                [/print\(/g, sArrName + '.push(']
+            ];
+            for (var i = 0; i < ss.length; i++) {
+                sTmpl = sTmpl.replace(ss[i][0], ss[i][1]);
+            }
+            if (N >= 0) {
+                throw new Error("Lose end Tag: " + NStat[N].tagG);
+            }
+
+            sTmpl = sTmpl.replace(/##7b/g, '{').replace(/##7d/g, '}').replace(/##23/g, '#'); //替换特殊符号{}#
+            sTmpl = 'var ' + sArrName + '=[];' + sLeft + sTmpl + '");return ' + sArrName + '.join("");';
+
+            //alert('转化结果\n'+sTmpl);
+            var fun = new Function('opts', sTmpl);
+            if (arguments.length > 1) {
+                return fun(opts);
+            }
+            return fun;
+        };
+    }());
+    function checkUserExist() {
+        var url = '/api-third-party/service/datacenter/config_info';
+        var data = {
+            appId: appId,
+            key: 'user_exist'
+        };
+        if (DEBUG) {
+            $.extend(data, {deviceId: deviceId});
+        }
+        routerRequest.request({
+            path: url,
+            type: "GET",
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                data = JSON.parse(data);
+
+                if (data.value === "Yes") {
+                    getCurUsername();
+                } else {
+                    $('.btn-set-password').show();
+                    if (!Boolean(localStorage['dialogPasswordAutoOpened'])) {
+                        $('.dialog-password').show();
+                        localStorage['dialogPasswordAutoOpened'] = true;
+                    }
+                }
+            },
+            error: function () {
+                toast('网络异常，请重试');
+            }
+        });
+    }
+    function getCurUsername() {
+        var url = '/api-third-party/service/datacenter/config_info';
+        var data = {
+            appId: appId,
+            key: 'cur_username'
+        };
+        if (DEBUG) {
+            $.extend(data, {deviceId: deviceId});
+        }
+        routerRequest.request({
+            path: url,
+            type: "GET",
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                data = JSON.parse(data);
+
+                //$('.cur-username').show().find('.username').text(data.value || '');
+                $('.dialog-password')
+                        .find('.head').text('修改用于恢复的用户名和密码')
+                    .end()
+                        .find('[name="username"]').val(data.value || '');
+                $('.btn-set-password')
+                        .find('.k').text('修改Mac恢复密码')
+                    .end()
+                        .find('.sub').text('修改用户恢复的用户名和密码')
+                    .end().show();
+            },
+            error: function () {
+                toast('网络异常，请重试');
+            }
+        });
+    }
+    function addUsernameAndPassword(username, passwd) {
+        if (!checkUsernameAndPassword(username, passwd)) {
+            return false;
+        }
+
+        var url = '/api-third-party/service/datacenter/plugin_control';
+        var crypt = new JSEncrypt();
+
+        var pubkey = $('#pubkey').val();
+        crypt.setPublicKey(pubkey);
+        //passwd = encodeURIComponent(crypt.encrypt(passwd));
+        passwd = crypt.encrypt(passwd);
+
+        var data = {
+            appId: appId,
+            info:'addUsernameAndPasswd:'+ JSON.stringify({
+                    "username": username,
+                    "passwd": passwd
+                })
+        };
+        if (DEBUG) {
+            $.extend(data, {deviceId: deviceId});
+        }
+
+        routerRequest.request({
+            path: url,
+            type: "GET",
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                data = JSON.parse(data);
+
+                if (data.code === 0) {
+                    toast('设置成功！');
+                    closePasswordDialog();
+                    getCurUsername();
+                }
+            },
+            error: function () {
+                toast('网络异常，请重试');
+            }
+        });
+    }
+    function checkUsernameAndPassword(username, password) {
+        var reg = /^[a-z0-9]+$/i, pass = true;
+
+        if(reg.test(username)) {
+            $('.note-username').removeClass('error');
+        } else {
+            pass = false;
+            $('.note-username').addClass('error');
+        }
+
+        if(reg.test(password)) {
+            $('.note-password').removeClass('error');
+        } else {
+            pass = false;
+            $('.note-password').addClass('error');
+        }
+
+        return pass;
+    }
+    $(document).ready(function () {
+        if (DEBUG) {
+            if (!routerRequest.hasAccessToken()) {
+                routerRequest.authorize('http://app.miwifi.com/timemachine3/index.html', appId);
+            }
+        }
+        $('.cancel__').click(function () {
+            $('.bkspaceset').toggle();
+            $('.mask').toggle();
+        });
+        $('.setbkspace').click(function (e) {
+            $('.bkspaceset').toggle();
+            $('.mask').toggle();
+        });
+        $('.btn-group-autosize .btn').click(function (e) {
+            $('.btn-group-autosize .btn').removeClass('active');
+            $(this).addClass('active');
+            var val = $(this).attr('data-size');
+            $('#bksizeauto').val(val);
+        });
+        $('#bksizecust').on('blur', function () {
+            if (this.value != '') {
+                $('#bksizeauto').val('');
+                $('.btn-group-autosize .btn').removeClass('active');
+            }
+        });
+        $(document.bkspaceset).on('submit', function (e) {
+            e.preventDefault();
+            var auto = $('#bksizeauto').val(),
+                    cust = $('#bksizecust').val(),
+                    val;
+            if (auto == '' && cust == '') {
+                $('#bksizecust').focus();
+            } else {
+                val = cust == '' ? auto : cust;
+                val = parseInt(val, 10);
+                setBakupSpace(val * 1000);
+            }
+
+        });
+        $('.dialog-password .btn-confirm').on('click', function () {
+            addUsernameAndPassword($(this).parent().find('[name=username]').val(),
+                    $(this).parent().find('[name=password]').val());
+        });
+        getStatus();
+    });
+
+    function openPasswordDialog() {
+        $('.dialog-password').show();
+    }
+
+    function closePasswordDialog() {
+        $('.dialog-password').hide();
+    }
+    //cur_username
+</script>
+</body>
+</html>

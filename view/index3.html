@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Frpc配置</title>
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta name="format-detection" content="telephone=no,email=no"/>
+    <link rel="stylesheet" type="text/css" href="./resource/css/style.css"/>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no"/>
+    <link rel="stylesheet" href="resource/css/normalize.css">
+    <link rel="stylesheet" href="resource/css/main.css">
+</head>
+<body>
+
+<div class="wrapper clearfix">
+    <div class="yo-tip hide" id="tip"></div>
+    <div class="content">
+
+        <p class="txt-tip1">请在下框填写配置信息</p>
+        <textarea id="textarea" placeholder="粘贴frpc配置"></textarea>
+        <!--p class="txt-tip2">粘贴frpc配置</p-->
+    </div>
+    <div class="footer">
+        <div class="button" id="button">配置</div>
+    </div>
+</div>
+
+
+<script src="./resource/js/jquery-2.1.0.min.js"></script>
+
+ <script src="http://app.miwifi.com/js/router_request.js"></script>
+<script>
+    var appId = "2882303761517415902";
+
+    var DEBUG = false;
+    var lock = false;
+    var errorCode = {
+        2501: '安装插件失败',
+        2502: '控制插件失败',
+        2503: '插件包不存在',
+        2504: '请输入插件ID',
+        2505: '配置信息key不能以数字开头',
+        2506: '此插件正在安装',
+        2507: '此插件已经安装',
+        2508: '插件签名验证错误',
+        2509: '签名类型错误',
+        2510: '更新状态出错',
+        2511: 'Pid不存在',
+        2512: '插件不存在',
+        2513: 'sdk版本过低',
+        2514: 'mount userdisk 出错',
+        2515: '无法获取设备id'
+    };
+    var istoast = false;
+    var toast = function (msg) {
+        if (istoast) {
+            $('#toast').stop(1, 1).hide();
+        }
+        istoast = true;
+        $('#toast').html(msg).fadeIn(400, function () {
+            setTimeout(function () {
+                $('#toast').fadeOut(400);
+                istoast = false;
+            }, 2000);
+        });
+    };
+
+    function getStatus() {
+        var data = {appId: appId};
+        routerRequest.request({
+            path: "/api-third-party/service/datacenter/get_plugin_status",
+            data: data,
+            success: function (data) {
+                //alert(data);
+                data = $.parseJSON(data);
+                if (data.code == 0) {
+                    $('.loading-flower').addClass('fade-out');
+                    $('.frame').addClass('fade-in');
+                    if(data.isEnable){
+                        $('#turn').addClass('open');
+                        $('.defaulthide').show();
+                    }else{
+                        $('#turn').removeClass('open');
+                        $('.defaulthide').hide();
+                    }
+                    $('#turn').bind('click', toggleStatus);
+
+                } else if (data.code in errorCode) {
+                    toast(errorCode[data.code]);
+                } else {
+                    data.msg && toast(data.msg);
+                }
+            },
+            error: function (data) {
+                toast('获取插件信息失败');
+            }
+        });
+    }
+
+    function toggleStatus(evt) {
+        var target = evt.target;
+        var isOpen = $('#turn').hasClass('open');
+        var url = isOpen ? "/api-third-party/service/datacenter/plugin_disable" : "/api-third-party/service/datacenter/plugin_enable";
+        var text = isOpen ? "关闭" : "打开";
+
+        setEnable(isOpen ? "off" : "on")
+
+        if (lock) {
+            return
+        }
+        lock = true;
+
+        $('#loading').text('正在' + text + '…').show();
+        var data = {appId: appId};
+        if (DEBUG) {
+            $.extend(data, {deviceId: deviceId});
+        }
+        routerRequest.request({
+            path: url,
+            type: "GET",
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                data = $.parseJSON(data);
+                if (data.code == 0) {
+                    $('#turn').toggleClass('open');
+                } else if (data.code in errorCode) {
+                    toast(errorCode[data.code]);
+                } else {
+                    data.msg && toast(data.msg);
+                }
+                lock = false;
+                $('#loading').hide();
+                setTimeout(function () {
+                    getStatus();
+                }, 1000);
+            },
+            error: function (data) {
+                lock = false;
+                $('#loading').hide();
+                toast('修改插件状态失败');
+            }
+        });
+    }
+
+         
+    $(document).ready(function(){
+
+        $('.cancel__').click(function () {
+            $('.bkspaceset').toggle();
+            $('.mask').toggle();
+        });
+        $('.setbkspace').click(function (e) {
+            $('.bkspaceset').toggle();
+            $('.mask').toggle();
+        });
+        $('.btn-group-autosize .btn').click(function (e) {
+            $('.btn-group-autosize .btn').removeClass('active');
+            $(this).addClass('active');
+            var val = $(this).attr('data-size');
+            $('#bksizeauto').val(val);
+        });
+        $('#bksizecust').on('blur', function () {
+            if (this.value != '') {
+                $('#bksizeauto').val('');
+                $('.btn-group-autosize .btn').removeClass('active');
+            }
+        });
+        $(document.bkspaceset).on('submit', function (e) {
+            e.preventDefault();
+            var auto = $('#bksizeauto').val(),
+                    cust = $('#bksizecust').val(),
+                    val;
+            if (auto == '' && cust == '') {
+                $('#bksizecust').focus();
+            } else {
+                val = cust == '' ? auto : cust;
+                val = parseInt(val, 10);
+                setPort(val);
+            }
+
+        });
+        getStatus();
+
+        
+    });
+    $("#button").on("click", function () {
+  
+            var url = '/api-third-party/service/datacenter/set_config';
+            frpc_config=$("#textarea").val();
+            if (frpc_config.length==0) {
+                alert( alert(111));
+                return;
+            }
+            var data = {
+                appId: appId,
+                key: 'frpc_ini',
+                value: frpc_config
+            };
+            routerRequest.request({
+                path: url,
+                type: "GET",
+                dataType: 'json',
+                data: data,
+                success: function (data) {
+                    data = $.parseJSON(data);
+                    if (data.code == 0) {
+                        alert('设置成功');
+                        location.reload(1);
+                    } else {
+                        alert(data.msg);
+                    }
+                },
+                error: function () {
+                    alset('网络异常，请重试');
+                }
+            });
+        });
+
+</script>
+</body>
+</html>
