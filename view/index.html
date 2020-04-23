@@ -33,14 +33,29 @@
     </div>
 
 
-    <div id="base" class="wrapper clearfix" style="display: none">
+    <div id="base" class="wrapper clearfix" style="display: ">
         <h2 class="btn-set-password" onclick="openServerDialog();">
             <div class="k">服务器设置:</div>
             <div class="v"><i class="ico-set"></i></div>
 
-            <div class="sub">服务器:-.-.-.- 端口:---- 协议:---</div>
+            <div class="sub">服务器:-.-.-.- 端口:---- 协议:--- </div>
         </h2>
     </div>
+
+
+    <div class="ifnonehide" >
+        <ul class="defaulthide ">
+            <li> <div>name</div>
+                <div>127.0.0.1</div>
+                HTTP <span class="number" id="hit_count">远程端口：8888</span></li>
+            <li> HTTPS <span class="number" id="timesaver">远程端口：9999</span></li>
+            <li>TCP <span class="number" id="">0</span></li>
+            <li>UTP <span class="number" id="numberweb">0</span></li>
+        </ul>
+        <p class="defaulthide tip hide">以上数据每10分钟更新一次</p>
+    </div>
+
+
 
     <div id="advance" class="wrapper clearfix" style="display: none">
         <div class="yo-tip hide" id="tip"></div>
@@ -83,7 +98,7 @@
 
         <p class="btns">
             <button type="submit" class="btn submit">确认</button>
-            <button type="button" class="btn cancel cancel__">取消</button>
+            <!--button type="button" class="btn cancel cancel__">取消</button-->
         </p>
     </form>
 </div>
@@ -564,6 +579,9 @@
     }
 
     //cur_username
+
+
 </script>
+
 </body>
 </html>

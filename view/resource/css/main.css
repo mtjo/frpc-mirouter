@@ -40,14 +40,14 @@ font-size: 14px; padding: 11px 10px;}
 .bkspaceset p input+em { position: relative; margin-left: -35px; display: inline-table; height: 38px;
 line-height: 38px; color: #999; font-style: normal; float: left;}
 .bkspaceset .btns { border: 1px #d9d9d9 solid; border-radius: 40px;}
-.bkspaceset .btns .btn { margin: 0; padding: 0; border: 0; background:#fff;  width: 50%; float: left;
+.bkspaceset .btns .btn { margin: 0; padding: 0; border: 0; background:#fff;  width: 100%; float: left;
 height:38px; line-height: 38px; font-size: 14px; -webkit-boxsizing:border-box; border-left: 1px #d9d9d9 solid; }
 .bkspaceset .btns .btn:first-child {border-left: 0;}
 
 .bakuphistory .item {margin: 10px;}
-.bakuphistory .item li {overflow: hidden; padding: 3px 0;}
-.bakuphistory .item li .k {float: left; text-align: right; color: #999;}
-.bakuphistory .item li .v {overflow: hidden; display: block; color: #2288dd;}
+.bakuphistory .item li {overflow: hidden; background: #3c3c3c; padding: 3px 0; }
+.bakuphistory .item li .k {float: left; text-align: right; color: #2288dd;}
+.bakuphistory .item li .v {overflow: hidden; display: block; color: #999;}
 .bakuphistory h3 {font-size: 14px; font-weight: normal; margin: 0; padding: 0;}
 
 .toast {
@@ -63,6 +63,8 @@ height:38px; line-height: 38px; font-size: 14px; -webkit-boxsizing:border-box; b
     text-align: center;
 }
 .ico-set { display: inline-block; width: 8px; height: 14px; background: url(../img/arrow.png) no-repeat;  background-size: 100%;}
+.ico-edit { display: inline-block; width: 30px; height: 35px; background: url(../img/edit.png) no-repeat;  background-size: 100%;}
+
 .sec-bksize .k {float: left;}
 .sec-bksize .v{float: right;}
 .sec-bksize .ico-set {margin-left: 10px;}
@@ -409,3 +411,12 @@ height:38px; line-height: 38px; font-size: 14px; -webkit-boxsizing:border-box; b
     border: none;
     background: #2c7dfa
 }
+h1{color: #444444; font-size: 18px; margin: 0; text-indent: 5px;padding-top:6px;}
+ul{margin:0 10px; padding:0 0 0 6px;}
+ul li{list-style: none; line-height:60px; color: #444; font-size: 18px; font-weight: bold; position: relative; border-bottom: 1px solid #dedede; }
+ul li .number {font-size: 22px; position: absolute; right: 12px; color: #2288dd;}
+p {margin:0; color: #808080; font-size: 14px; padding: 6px 0 0 6px;}
+.loading{background: black; height: 40px; width: 100px; line-height: 40px; position: absolute; bottom: 40px; margin:0 auto; color: #fff; text-align: center; left: 50%; margin-left: -50px; -webkit-transition:all ease-out .2s; opacity: 0;}
+.tip {margin: 0 10px 0; line-height: 1.5;}
+.hide {display: none;}
+.lessimgintd{max-width:12%;vertical-align:middle; padding:0,0,0,3px; margin-right:4px}

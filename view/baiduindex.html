@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no" />
+    <title>百度网页加速</title>
+    <link rel="stylesheet" href="resource/css/normalize.css">
+    <style type="text/css">
+        header{ width: 100%; padding: 10px 10px 0 10px; -webkit-box-sizing: border-box; overflow: hidden;}
+        header>img{width: 100%}
+        section{display:block; height: 60px; margin:0 10px; border-bottom: 1px solid #dedede; position: relative;}
+        h1{color: #444444; font-size: 18px; margin: 0; text-indent: 5px;padding-top:6px;}
+        ul{margin:0 10px; padding:0 0 0 6px;}
+        ul li{list-style: none; line-height:60px; color: #444; font-size: 18px; font-weight: bold; position: relative; border-bottom: 1px solid #dedede; }
+        ul li .number {font-size: 22px; position: absolute; right: 12px; color: #2288dd;}
+        p {margin:0; color: #808080; font-size: 14px; padding: 6px 0 0 6px;}
+        .loading{background: black; height: 40px; width: 100px; line-height: 40px; position: absolute; bottom: 40px; margin:0 auto; color: #fff; text-align: center; left: 50%; margin-left: -50px; -webkit-transition:all ease-out .2s; opacity: 0;}
+        .tip {margin: 0 10px 0; line-height: 1.5;}
+        .hide {display: none;}
+        .lessimgintd{max-width:12%;vertical-align:middle; padding:0,0,0,3px; margin-right:4px}
+
+        /*切换开关样式 start*/
+        @-webkit-keyframes loading {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        .toggle-container {
+            height: 32px;
+            width: 56px;
+            position: absolute;
+            right: 0;
+            top: 15px;
+            overflow: hidden;
+        }
+        .frame {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-radius: 30px 30px;
+            width: 54px;
+            height: 30px;
+            -webkit-transform: translateX(100%);
+        }
+        .loading-flower {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            left: 11px;
+            top: 0px;
+        }
+        .flower {
+            width: 32px;
+            height: 32px;
+            background: url(./resource/img/loading_72x72.png) 0 0 no-repeat;
+            background-size: 32px;
+            -webkit-animation: loading 1s linear infinite;
+        }
+
+        .button {
+            background: gray;
+            border-radius: 24px;
+            height: 24px;
+            width: 24px;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            -webkit-transition: all ease-out .2s;
+        }
+
+        .open .button {
+            left: 27px;
+            background: #2288dd;
+        }
+
+
+        .fade-out {
+            opacity: 0;
+            -webkit-transform: translateX(-100%) scale(0.6);
+            -webkit-transition: -webkit-transform .3s ease-out, opacity .3s ease-out;
+        }
+        .fade-in {
+            opacity: 1;
+            -webkit-transform: translateX(0%);
+            -webkit-transition: -webkit-transform .3s ease-out, opacity .3s ease-out;
+        }
+        /*切换开关样式 end*/
+
+
+    </style>
+</head>
+<body>
+<div>
+    <header>
+        <img src="resource/img/pic_1.jpg" alt="百度网页加速">
+    </header>
+    <section>
+        <h1>百度网页加速</h1>
+        <p>开启后将对百度搜索结果进行加速</p>
+        <div class="toggle-container">
+            <div class="loading-flower">
+                <div class="flower"></div>
+            </div>
+            <div class="frame" id="turn">
+                <div class="button"></div>
+            </div>
+        </div>
+    </section>
+    <div class="ifnonehide" >
+        <ul class="defaulthide hide">
+            <li><img class="lessimgintd" src="resource/img/download.png"/>  加速网页资源数 <span class="number" id="hit_count">0</span></li>
+            <li><img class="lessimgintd" src="resource/img/time.png"/>  减少等待时间(秒) <span class="number" id="timesaver">0</span></li>
+            <!-- <li>已拦截网页 <span class="number" id="numberweb">0</span></li> -->
+        </ul>
+        <p class="defaulthide tip hide">以上数据每10分钟更新一次</p>
+    </div>
+</div>
+<div id="loading" class="loading">正在加载…</div>
+<script src="resource/js/jquery-2.1.0.min.js"></script>
+<script src="http://app.miwifi.com/js/router_request.js"></script>
+<script>
+    var appId = "2882303761517298061";
+    var lock = false;
+    var errorCode = {
+        2501 : '安装插件失败',
+        2502 : '控制插件失败',
+        2503 : '插件包不存在',
+        2504 : '请输入插件ID',
+        2505 : '配置信息key不能以数字开头',
+        2506 : '此插件正在安装',
+        2507 : '此插件已经安装',
+        2508 : '插件签名验证错误',
+        2509 : '签名类型错误',
+        2510 : '更新状态出错',
+        2511 : 'Pid不存在',
+        2512 : '插件不存在',
+        2513 : 'sdk版本过低',
+        2514 : 'mount userdisk 出错',
+        2515 : '无法获取设备id'
+    };
+
+    function getStatus(){
+        routerRequest.request({
+            path: "/api-third-party/service/datacenter/get_plugin_status",
+            data: {appId : appId},
+            success: function(data) {
+                data = $.parseJSON(data);
+                if(data.code == 0){
+                    $('.loading-flower').addClass('fade-out');
+                    $('.frame').addClass('fade-in');
+                    if(data.isEnable){
+                        $('#turn').addClass('open');
+                        $('.defaulthide').show();
+                    }else{
+                        $('#turn').removeClass('open');
+                        $('.defaulthide').hide();
+                    }
+                    $('#turn').bind('click', toggleStatus);
+                }else if(data.code in errorCode){
+                    alert(errorCode[data.code]);
+                }else{
+                    data.msg && alert(data.msg);
+                }
+            },
+            error: function(data) {
+                alert('获取插件信息失败');
+            }
+        });
+    }
+
+    function toggleStatus(evt){
+        var target = evt.target;
+        var isOpen = $('#turn').hasClass('open');
+        var url =  isOpen ? "/api-third-party/service/datacenter/plugin_disable" : "/api-third-party/service/datacenter/plugin_enable";
+        var text = isOpen ? "关闭" : "打开";
+
+        if(lock){return}
+        lock = true;
+
+        $('#loading').text('正在' + text + '…').css('opacity', '1');
+        routerRequest.request({
+            path: url,
+            type: "GET",
+            dataType: 'json',
+            data: {appId : appId},
+            success: function(data) {
+                data = $.parseJSON(data);
+                if(data.code == 0){
+                    $('#turn').toggleClass('open');
+                    $('.defaulthide').toggle();
+                }else if(data.code in errorCode){
+                    alert(errorCode[data.code]);
+                }else{
+                    // data.msg && alert(data.msg);
+                }
+                lock = false;
+                $('#loading').css('opacity', '0');
+            },
+            error: function(data){
+                lock = false;
+                $('#loading').css('opacity', '0');
+                alert('修改插件状态失败');
+            }
+        });
+    }
+
+    function getPreloadstatistics(){
+        routerRequest.request({
+            path: "/api-third-party/service/datacenter/config_info",
+            data: {appId : appId, key : "statistics"},
+            success: function(data) {
+                data = $.parseJSON(data);
+                if(data.code == 0){
+                	  var value = $.parseJSON(data.value);
+                	  $('#hit_count').html(value.hit_count);
+                	  $('#timesaver').html(value.timesaver);
+                }else if(data.code in errorCode){
+                		alert(errorCode[data.code]);
+                }else{
+                		data.msg && alert(data.msg);
+                }
+            },
+            error: function(data) {
+                alert('获取插件加速信息失败');
+            }
+        });
+    }
+
+    $(document).ready(function(){
+    	  getPreloadstatistics();
+        getStatus();
+    });
+</script>
+</body>
+</html>
