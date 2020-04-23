@@ -26,57 +26,20 @@
 
             <div class="v"><span id="bkspace">loading...</span><i class="ico-set"></i></div>
         </h2>
-
     </div>
 
-    <div class="loading-container" >
+    <div class="loading-container">
         <div class="flower" style="margin: 30% auto"></div>
     </div>
 
 
     <div id="base" class="wrapper clearfix" style="display: none">
-        <tbody><tr style="width: 30%;"><td class="text_right">服务器：</td> <td><input type="text" placeholder="127.0.0.1"></td></tr> <tr><td class="text_right">端口：</td> <td><input type="text" placeholder="7000" name="port"></td></tr> <tr><td class="text_right">token：</td> <td><input type="password" placeholder="token"></td></tr> <tr><td class="text_right">日志记录：</td> <td><input type="checkbox" class="mui-switch mui-switch-anim">
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <font color="green" href="" style="display: none;">查看</font>
+        <h2 class="btn-set-password" onclick="openServerDialog();">
+            <div class="k">服务器设置:</div>
+            <div class="v"><i class="ico-set"></i></div>
 
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-            <font color="red" href="" style="display: none;">清除</font></td>
-        </tr>
-        <tr style="display: none;">
-            <td class="text_right">日志记录：</td>
-            <td><input placeholder="frpc.log" type="text"></td>
-        </tr>
-        <tr class="text_right" style="display: none;">
-            <td>日志级别：</td>
-            <td><select>
-                <option value="trace">trace</option>
-                <option value="debug">debug</option>
-                <option value="info">info</option>
-                <option value="warn">warn</option>
-                <option value="error">error</option>
-            </select></td>
-        </tr>
-        <tr style="display: none;">
-            <td class="text_right">日志天数：</td>
-            <td><input type="number" name="log_days" placeholder="3"></td>
-        </tr>
-        <tr class="text_right">
-            <td>tcp_mux：</td>
-            <td class="text_left"><input type="checkbox" class="mui-switch mui-switch-anim"></td>
-        </tr>
-        <tr class="text_right">
-            <td>协议：</td>
-            <td><select>
-                <option value="tcp">tcp</option>
-                <option value="kcp">kcp</option>
-            </select></td>
-        </tr>
-        <tr class="text_right">
-            <td>login_fail_exit：</td>
-            <td class="text_left"><input type="checkbox" class="mui-switch mui-switch-anim"></td>
-        </tr>
-        </tbody>
+            <div class="sub">服务器:-.-.-.- 端口:---- 协议:---</div>
+        </h2>
     </div>
 
     <div id="advance" class="wrapper clearfix" style="display: none">
@@ -90,9 +53,7 @@
     </div>
     <h2>使用帮助：</h2>
     <ol>
-        <li>1: File Browser 是一个基于 Web
-            的文件管理器。它可以使你随时随地的对设备的文件进行基本的管理操作，如：创建、删除、移动、复制等。它除了可以让你进行文件管理之外，还有一些其他的功能。它支持多个用户的管理，而且每个用户可以拥有自己可以访问的文件和权限。它还支持文件分享，就行网盘那样，你可以通过它来向你的朋友分享文件。你还可以用它来执行一些
-            Linux 命令，比如你想要在当前目录下克隆一个代码库，就可以用它来执行git等命令。
+        <li>1: frpc客户端小米路由器插件,frp 是一个可用于内网穿透的高性能的反向代理应用，支持 tcp, udp, http, https 协议。
         </li>
         <li>2: 插件启用后可以通过 http://路由IP地址:端口 访问，（默认账号和密码都是admin，登录后自行修改）</li>
         <li>3: 建议配置 Frpc 插件使用,可以实现公网域名访问</li>
@@ -129,7 +90,47 @@
 <div class="loading-layer">
     <div class="bg-cont"></div>
 </div>
+<div class="dialog-password" style="display: none;">
+    <div class="dialog">
+        <a href="javascript:closeServerDialog();" class="btn-close"></a>
 
+        <div class="form-box">
+            <div class="head">设置Frp服务器</div>
+            <div class="body">
+                <div class="input-box">
+                    <label>服务器：</label>
+                    <input type="text" value="" name="host"/>
+                </div>
+                <div class="note note-username">服务器 IP 或者域名</div>
+                <div class="input-box">
+                    <label>端口：</label>
+                    <input type="text" value="" name="port"/>
+                </div>
+                <div class="note note-username">服务器端口</div>
+                <div class="input-box">
+                    <label>密码：</label>
+                    <input type="text" value="" name="token"/>
+                </div>
+                <div class="note note-username">服务器密码</div>
+                <div class="input-box">
+                    <!--label>协议：</label-->
+                    <select name="protocol">
+                        <option value="">请选择通信协议</option>
+                        <option value="tcp"> TCP</option>
+                        <!--option value="udp">UDP</option-->
+                        <option value="kcp">KCP</option>
+                    </select>
+                </div>
+                <div class="note note-password">服务器密码</div>
+                <button class="btn-confirm">确定</button>
+            </div>
+        </div>
+        <!--div class="desc">
+            <div class="text">提示：您在Mac上恢复备份时，需要用该用户名和密码</div>
+            <img src="./resource/img/mac-dialog.png"/>
+        </div-->
+    </div>
+</div>
 
 <script src="resource/js/jquery-2.1.0.min.js"></script>
 <script src="resource/js/jsencrypt.js"></script>
@@ -327,7 +328,7 @@
                     changeSetingType(selectStr);
                     $('#bkspace').html(selectStr);
                     $('.btn-group-autosize .btn').each(function () {
-                        if($(this).attr('data-size') == selectStr){
+                        if ($(this).attr('data-size') == selectStr) {
                             $(this).addClass('active');
                         }
                     });
@@ -340,7 +341,44 @@
             }
         });
     }
+    function getServer() {
 
+        var url = '/api-third-party/service/datacenter/config_info';
+        var data = {
+            appId: appId,
+            key: 'server'
+        };
+        if (DEBUG) {
+            $.extend(data, {deviceId: deviceId});
+        }
+        routerRequest.request({
+            path: url,
+            type: "GET",
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                //toast(data);
+                data = $.parseJSON(data);
+                if (data.code == 0) {
+                    var serverStr = decodeURIComponent(data.value);
+                    var arr = serverStr.split('|||');
+                    if (arr[1]!=''){
+                        server = $.parseJSON(arr[1]);
+                        $('.dialog-password').find('[name=host]').val(server.host);
+                        $('.dialog-password').find('[name=port]').val(server.port);
+                        $('.dialog-password').find('[name=token]').val(server.token);
+                        $('.dialog-password').find('[name=protocol]').val(server.protocol);
+                        $('.sub').html('服务器:'+server.host+' 端口:'+server.port+' 协议:'+server.protocol);
+                    }
+                } else {
+                    $('#bkspace').html(data.msg);
+                }
+            },
+            error: function () {
+                toast('网络异常，请重试');
+            }
+        });
+    }
     function getFrpcIni() {
 
         var url = '/api-third-party/service/datacenter/config_info';
@@ -372,16 +410,74 @@
         });
     }
 
-    function changeSetingType(type){
+    function changeSetingType(type) {
         $('.loading-container').hide();
-        if (type == "简单设置"){
+        if (type == "简单设置") {
             $("#advance").hide();
             $("#base").show();
-        }else{
+        } else {
             $("#base").hide();
             $("#advance").show();
         }
 
+    }
+
+    String.prototype.format = function () {
+        var formatted = this;
+        for (var prop in arguments[0]) {
+            var regexp = new RegExp('\\{' + prop + '\\}', 'gi');
+            formatted = formatted.replace(regexp, arguments[0][prop]);
+        }
+        return formatted;
+    };
+
+    function setServer(host, port, token, protocol) {
+        if (host.length == 0) {
+            toast("服务器不能为空")
+            return false;
+        }
+        if (port.length == 0) {
+            toast("请设置端口")
+            return false;
+        }
+        if (token.length == 0) {
+            toast("请设置密码")
+            return false;
+        }
+        if (protocol.length == 0) {
+            toast("请选择协议")
+            return false;
+        }
+
+        jsondata = {host: host, port: port, token: token, protocol: protocol, user: "router"};
+        var server = ("[common]\nserver_addr = {host}\nserver_port = {port}\ntoken = {token}\nlog_file = /dev/null\nlog_level = info\nlog_max_days = 3\ntcp_mux = true\nprotocol = {protocol}\nlogin_fail_exit = false\nuser = {user}\n")
+            .format(jsondata);
+        server = encodeURIComponent(server+"|||"+JSON.stringify(jsondata));
+
+        var data = {
+            appId: appId,
+            key: 'server',
+            value: server
+        };
+        var url = '/api-third-party/service/datacenter/set_config';
+        routerRequest.request({
+            path: url,
+            type: "GET",
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                data = $.parseJSON(data);
+                if (data.code == 0) {
+                    toast('设置成功');
+                    location.reload(1);
+                } else {
+                    toast(data.msg);
+                }
+            },
+            error: function () {
+                toast('网络异常，请重试');
+            }
+        });
     }
 
     $(document).ready(function () {
@@ -413,9 +509,17 @@
             //toast(encodeURIComponent($('#bksizeauto').val()));
             setType(encodeURIComponent($('#bksizeauto').val()));
         });
+        $('.dialog-password .btn-confirm').on('click', function () {
+            host = $(this).parent().find('[name=host]').val()
+            port = $(this).parent().find('[name=port]').val()
+            token = $(this).parent().find('[name=token]').val()
+            protocol = $(this).parent().find('[name=protocol]').val()
+            setServer(host, port, token, protocol)
+        });
         getStatus();
         getType();
         getFrpcIni();
+        getServer();
         $("#button").on("click", function () {
 
             var url = '/api-third-party/service/datacenter/set_config';
@@ -451,7 +555,15 @@
         });
     });
 
+    function openServerDialog() {
+        $('.dialog-password').show();
+    }
 
+    function closeServerDialog() {
+        $('.dialog-password').hide();
+    }
+
+    //cur_username
 </script>
 </body>
 </html>

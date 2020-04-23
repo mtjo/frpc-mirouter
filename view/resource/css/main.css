@@ -235,6 +235,7 @@ height:38px; line-height: 38px; font-size: 14px; -webkit-boxsizing:border-box; b
 }
 
 .dialog-password input[type=text],
+.dialog-password select,
 .dialog-password input[type=password] {
     border: none;
     font-size: 15px;
