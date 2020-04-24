@@ -33,28 +33,22 @@
     </div>
 
 
-    <div id="base" class="wrapper clearfix" style="display: ">
+    <div id="base" class="wrapper clearfix hide">
         <h2 class="btn-set-password" onclick="openServerDialog();">
             <div class="k">服务器设置:</div>
             <div class="v"><i class="ico-set"></i></div>
 
-            <div class="sub">服务器:-.-.-.- 端口:---- 协议:--- </div>
+            <div class="sub">服务器:-.-.-.- 端口:---- 协议:---</div>
         </h2>
+        <div class="ifnonehide">
+            <ul class="defaulthide " id="itemlist">
+            </ul>
+            <div class="footer">
+                <div class="button" onclick="openNodeDialog();" id="addnode" style="font-size: 30px;line-height: 30px;">+
+                </div>
+            </div>
+        </div>
     </div>
-
-
-    <div class="ifnonehide" >
-        <ul class="defaulthide ">
-            <li> <div>name</div>
-                <div>127.0.0.1</div>
-                HTTP <span class="number" id="hit_count">远程端口：8888</span></li>
-            <li> HTTPS <span class="number" id="timesaver">远程端口：9999</span></li>
-            <li>TCP <span class="number" id="">0</span></li>
-            <li>UTP <span class="number" id="numberweb">0</span></li>
-        </ul>
-        <p class="defaulthide tip hide">以上数据每10分钟更新一次</p>
-    </div>
-
 
 
     <div id="advance" class="wrapper clearfix" style="display: none">
@@ -105,7 +99,7 @@
 <div class="loading-layer">
     <div class="bg-cont"></div>
 </div>
-<div class="dialog-password" style="display: none;">
+<div id="dialog-server" class="dialog-server" style="display: none;">
     <div class="dialog">
         <a href="javascript:closeServerDialog();" class="btn-close"></a>
 
@@ -119,7 +113,7 @@
                 <div class="note note-username">服务器 IP 或者域名</div>
                 <div class="input-box">
                     <label>端口：</label>
-                    <input type="text" value="" name="port"/>
+                    <input type="number" value="" name="port"/>
                 </div>
                 <div class="note note-username">服务器端口</div>
                 <div class="input-box">
@@ -147,12 +141,82 @@
     </div>
 </div>
 
+<div id="dialog-node" class="dialog-server" style="display: none;">
+    <div class="dialog">
+        <a href="javascript:closeNodeDialog();" class="btn-close"></a>
+
+        <div class="form-box">
+            <div class="body">
+                <div class="input-box">
+                    <label>名称：</label>
+                    <input type="text" placeholder="请不要使用中文" value="" name="name"/>
+                </div>
+                <div class="input-box" style="margin-top: 5px;">
+                    <label>内网IP：</label>
+                    <input type="text" placeholder="路由器可以写127.0.0.1" value="" name="local_ip"/>
+                </div>
+                <div class="input-box" style="margin-top: 5px;">
+                    <label>端口1：</label>
+                    <input type="number" placeholder="本地端口" value="" name="local_port"/>
+                </div>
+
+                <div class="input-box" style="margin-top: 5px;">
+                    <label>端口2：</label>
+                    <input type="number" placeholder="远程端口" value="" name="remote_port"/>
+                </div>
+
+                <div class="input-box" style="margin-top: 5px;">
+                    <label>子域名：</label>
+                    <input type="text" placeholder="subdomain" value="" name="subdomain"/>
+                </div>
+                <div class="input-box" style="margin-top: 5px;">
+                    <label>绑定域名：</label>
+                    <input type="text" placeholder="custom_domains" value="" name="custom_domains"/>
+                </div>
+                <div class="input-box" style="margin-top: 5px;">
+                    <select name="type" style="padding-left: 10px">
+                        <option value="">请选择通信协议</option>
+                        <option value="tcp"> TCP</option>
+                        <option value="udp">UDP</option>
+                        <option value="http">HTTP</option>
+                        <option value="https">https</option>
+                        <option value="stcp">stcp</option>
+                    </select>
+                </div>
+                <div class="input-box" style="margin: 5px auto 5px; border: none">
+                    <span>压缩：</span>
+                    <input type="checkbox" name="use_compression"/>
+                    <span>加密：</span>
+                    <input type="checkbox" name="use_encryption"/>
+                </div>
+                <button class="btn-confirm">确定</button>
+            </div>
+        </div>
+        <!--div class="desc">
+            <div class="text">提示：您在Mac上恢复备份时，需要用该用户名和密码</div>
+            <img src="./resource/img/mac-dialog.png"/>
+        </div-->
+    </div>
+</div>
+
 <script src="resource/js/jquery-2.1.0.min.js"></script>
 <script src="resource/js/jsencrypt.js"></script>
 <script src="http://app.miwifi.com/js/router_request.js"></script>
+<script type="tmpl/text" id="nodeitem">
+
+            <li>
+                <div class="name">{$nodename}  <font size="1" color="blue">{$custom_domains}</font></div>
+                <div class="local">IP：{$local_ip} 端口：{$local_port}</div>
+                <div class="remote">远程端口：{$lremote_port} 子域名:{$subdomain}</div>
+                <div class="icon">{$type} </div>
+                <div class="righticon"></div>
+            </li>
+
+</script>
 
 <script>
     var appId = "2882303761517415902";
+    var nodeList = [];
 
     var DEBUG = false;
     var lock = false;
@@ -356,6 +420,7 @@
             }
         });
     }
+
     function getServer() {
 
         var url = '/api-third-party/service/datacenter/config_info';
@@ -377,13 +442,13 @@
                 if (data.code == 0) {
                     var serverStr = decodeURIComponent(data.value);
                     var arr = serverStr.split('|||');
-                    if (arr[1]!=''){
+                    if (arr[1] != '') {
                         server = $.parseJSON(arr[1]);
-                        $('.dialog-password').find('[name=host]').val(server.host);
-                        $('.dialog-password').find('[name=port]').val(server.port);
-                        $('.dialog-password').find('[name=token]').val(server.token);
-                        $('.dialog-password').find('[name=protocol]').val(server.protocol);
-                        $('.sub').html('服务器:'+server.host+' 端口:'+server.port+' 协议:'+server.protocol);
+                        $('.dialog-server').find('[name=host]').val(server.host);
+                        $('.dialog-server').find('[name=port]').val(server.port);
+                        $('.dialog-server').find('[name=token]').val(server.token);
+                        $('.dialog-server').find('[name=protocol]').val(server.protocol);
+                        $('.sub').html('服务器:' + server.host + ' 端口:' + server.port + ' 协议:' + server.protocol);
                     }
                 } else {
                     $('#bkspace').html(data.msg);
@@ -394,6 +459,7 @@
             }
         });
     }
+
     function getFrpcIni() {
 
         var url = '/api-third-party/service/datacenter/config_info';
@@ -447,27 +513,11 @@
     };
 
     function setServer(host, port, token, protocol) {
-        if (host.length == 0) {
-            toast("服务器不能为空")
-            return false;
-        }
-        if (port.length == 0) {
-            toast("请设置端口")
-            return false;
-        }
-        if (token.length == 0) {
-            toast("请设置密码")
-            return false;
-        }
-        if (protocol.length == 0) {
-            toast("请选择协议")
-            return false;
-        }
 
         jsondata = {host: host, port: port, token: token, protocol: protocol, user: "router"};
         var server = ("[common]\nserver_addr = {host}\nserver_port = {port}\ntoken = {token}\nlog_file = /dev/null\nlog_level = info\nlog_max_days = 3\ntcp_mux = true\nprotocol = {protocol}\nlogin_fail_exit = false\nuser = {user}\n")
             .format(jsondata);
-        server = encodeURIComponent(server+"|||"+JSON.stringify(jsondata));
+        server = encodeURIComponent(server + "|||" + JSON.stringify(jsondata));
 
         var data = {
             appId: appId,
@@ -494,8 +544,200 @@
             }
         });
     }
+    var tmpl = (function () {
+        /*
+         sArrName 拼接字符串的变量名。
+         */
+        var sArrName = "sArrCMX",
+            sLeft = sArrName + '.push("';
+        /*
+         tag:模板标签,各属性含义：
+         tagG: tag系列
+         isBgn: 是开始类型的标签
+         isEnd: 是结束类型的标签
+         cond: 标签条件
+         rlt: 标签结果
+         sBgn: 开始字符串
+         sEnd: 结束字符串
+         */
+        var tags = {
+            'js': {
+                tagG: 'js',
+                isBgn: 1,
+                isEnd: 1,
+                sBgn: '");',
+                sEnd: ';' + sLeft
+            },
+            //任意js语句, 里面如果需要输出到模板，用print("aaa");
+            'if': {
+                tagG: 'if',
+                isBgn: 1,
+                rlt: 1,
+                sBgn: '");if',
+                sEnd: '{' + sLeft
+            },
+            //if语句，写法为{if($a>1)},需要自带括号
+            'elseif': {
+                tagG: 'if',
+                cond: 1,
+                rlt: 1,
+                sBgn: '");} else if',
+                sEnd: '{' + sLeft
+            },
+            //if语句，写法为{elseif($a>1)},需要自带括号
+            'else': {
+                tagG: 'if',
+                cond: 1,
+                rlt: 2,
+                sEnd: '");}else{' + sLeft
+            },
+            //else语句，写法为{else}
+            '/if': {
+                tagG: 'if',
+                isEnd: 1,
+                sEnd: '");}' + sLeft
+            },
+            //endif语句，写法为{/if}
+            'for': {
+                tagG: 'for',
+                isBgn: 1,
+                rlt: 1,
+                sBgn: '");for',
+                sEnd: '{' + sLeft
+            },
+            //for语句，写法为{for(var i=0;i<1;i++)},需要自带括号
+            '/for': {
+                tagG: 'for',
+                isEnd: 1,
+                sEnd: '");}' + sLeft
+            },
+            //endfor语句，写法为{/for}
+            'while': {
+                tagG: 'while',
+                isBgn: 1,
+                rlt: 1,
+                sBgn: '");while',
+                sEnd: '{' + sLeft
+            },
+            //while语句,写法为{while(i-->0)},需要自带括号
+            '/while': {
+                tagG: 'while',
+                isEnd: 1,
+                sEnd: '");}' + sLeft
+            } //endwhile语句, 写法为{/while}
+        };
 
+        return function (sTmpl, opts) {
+            var N = -1,
+                NStat = []; //语句堆栈;
+            var ss = [
+                [/\{strip\}([\s\S]*?)\{\/strip\}/g, function (a, b) {
+                    return b.replace(/[\r\n]\s*\}/g, " }").replace(/[\r\n]\s*/g, "");
+                }],
+                [/\\/g, '\\\\'],
+                [/"/g, '\\"'],
+                [/\r/g, '\\r'],
+                [/\n/g, '\\n'], //为js作转码.
+                [
+                    /\{[\s\S]*?\S\}/g, //js里使用}时，前面要加空格。
+                    function (a) {
+                        a = a.substr(1, a.length - 2);
+                        for (var i = 0; i < ss2.length; i++) {
+                            a = a.replace(ss2[i][0], ss2[i][1]);
+                        }
+                        var tagName = a;
+                        if (/^(.\w+)\W/.test(tagName)) {
+                            tagName = RegExp.$1;
+                        }
+                        var tag = tags[tagName];
+                        if (tag) {
+                            if (tag.isBgn) {
+                                var stat = NStat[++N] = {
+                                    tagG: tag.tagG,
+                                    rlt: tag.rlt
+                                };
+                            }
+                            if (tag.isEnd) {
+                                if (N < 0) {
+                                    throw new Error("Unexpected Tag: " + a);
+                                }
+                                stat = NStat[N--];
+                                if (stat.tagG != tag.tagG) {
+                                    throw new Error("Unmatch Tags: " + stat.tagG + "--" + tagName);
+                                }
+                            } else if (!tag.isBgn) {
+                                if (N < 0) {
+                                    throw new Error("Unexpected Tag:" + a);
+                                }
+                                stat = NStat[N];
+                                if (stat.tagG != tag.tagG) {
+                                    throw new Error("Unmatch Tags: " + stat.tagG + "--" + tagName);
+                                }
+                                if (tag.cond && !(tag.cond & stat.rlt)) {
+                                    throw new Error("Unexpected Tag: " + tagName);
+                                }
+                                stat.rlt = tag.rlt;
+                            }
+                            return (tag.sBgn || '') + a.substr(tagName.length) + (tag.sEnd || '');
+                        } else {
+                            return '",(' + a + '),"';
+                        }
+                    }
+                ]
+            ];
+            var ss2 = [
+                [/\\n/g, '\n'],
+                [/\\r/g, '\r'],
+                [/\\"/g, '"'],
+                [/\\\\/g, '\\'],
+                [/\$(\w+)/g, 'opts["$1"]'],
+                [/print\(/g, sArrName + '.push(']
+            ];
+            for (var i = 0; i < ss.length; i++) {
+                sTmpl = sTmpl.replace(ss[i][0], ss[i][1]);
+            }
+            if (N >= 0) {
+                throw new Error("Lose end Tag: " + NStat[N].tagG);
+            }
+
+            sTmpl = sTmpl.replace(/##7b/g, '{').replace(/##7d/g, '}').replace(/##23/g, '#'); //替换特殊符号{}#
+            sTmpl = 'var ' + sArrName + '=[];' + sLeft + sTmpl + '");return ' + sArrName + '.join("");';
+
+            //alert('转化结果\n'+sTmpl);
+            var fun = new Function('opts', sTmpl);
+            if (arguments.length > 1) {
+                return fun(opts);
+            }
+            return fun;
+        };
+    }());
+
+    initNodeList();
+    function initNodeList(){
+        var tpl = $('#nodeitem').html();
+        var container = $('#itemlist');
+        var htmlarr = [];
+        console.log(nodeList);
+        itemhtml='';
+        if (nodeList.length > 0) {
+            $.each(nodeList,function(index,value){
+                itemhtml += tmpl(tpl, value);
+            });
+
+            htmlarr.push(itemhtml);
+            container.html(htmlarr.join(''));
+        } else {
+            container.html('<li style="padding:0;margin:0; line-height:180px;text-align: center;color: white;">暂时没有记录</li>');
+        }
+    }
     $(document).ready(function () {
+
+        $('#addnode').on('blur', function () {
+            if (this.value != '') {
+                $('#bksizeauto').val('');
+                $('.btn-group-autosize .btn').removeClass('active');
+            }
+        });
 
         $('.cancel__').click(function () {
             $('.bkspaceset').toggle();
@@ -524,12 +766,79 @@
             //toast(encodeURIComponent($('#bksizeauto').val()));
             setType(encodeURIComponent($('#bksizeauto').val()));
         });
-        $('.dialog-password .btn-confirm').on('click', function () {
-            host = $(this).parent().find('[name=host]').val()
-            port = $(this).parent().find('[name=port]').val()
-            token = $(this).parent().find('[name=token]').val()
-            protocol = $(this).parent().find('[name=protocol]').val()
+        $('#dialog-server .btn-confirm').on('click', function () {
+            host = $(this).parent().find('[name=host]').val();
+            port = $(this).parent().find('[name=port]').val();
+            token = $(this).parent().find('[name=token]').val();
+            protocol = $(this).parent().find('[name=protocol]').val();
+            if (host.length == 0) {
+                toast("服务器不能为空")
+                return false;
+            }
+            if (port.length == 0) {
+                toast("请设置端口")
+                return false;
+            }
+            if (token.length == 0) {
+                toast("请设置密码")
+                return false;
+            }
+            if (protocol.length == 0) {
+                toast("请选择协议")
+                return false;
+            }
             setServer(host, port, token, protocol)
+        });
+        $('#dialog-node .btn-confirm').on('click', function () {
+
+            data = {
+                nodename: $(this).parent().find('[name=name]').val(),
+                local_ip: $(this).parent().find('[name=local_ip]').val(),
+                local_port: $(this).parent().find('[name=local_port]').val(),
+                remote_port: $(this).parent().find('[name=remote_port]').val(),
+                subdomain: $(this).parent().find('[name=subdomain]').val(),
+                custom_domains: $(this).parent().find('[name=custom_domains]').val(),
+                type: $(this).parent().find('[name=type]').val(),
+                use_compression: $(this).parent().find('[name=use_compression]').prop('checked'),
+                use_encryption: $(this).parent().find('[name=use_encryption]').prop('checked')
+            }
+            if (data.nodename.length == 0) {
+                toast("名称不能为空！")
+                return false;
+            }
+            if (data.local_ip.length == 0) {
+                toast("内网IP不能为空！")
+                return false;
+            }
+            if (data.local_port.length == 0) {
+                toast("远程端口不能为空！")
+                return false;
+            }
+            if (data.remote_port.length == 0) {
+                toast("远程端口不能为空！")
+                return false;
+            }
+            if (data.type.length == 0) {
+                toast("请选择协议")
+                return false;
+            }
+            nodeList.push(data);
+            nodeList.push(data);
+            nodeList.push(data);
+            nodeList.push(data);
+            nodeList.push(data);
+            nodeList.push(data);
+            nodeList.push(data);
+            nodeList.push(data);
+            nodeList.push(data);
+            nodeList.push(data);
+            nodeList.push(data);
+            nodeList.push(data);
+            nodeList.push(data);
+            nodeList.push(data);
+            initNodeList();
+            closeNodeDialog();
+
         });
         getStatus();
         getType();
@@ -571,11 +880,19 @@
     });
 
     function openServerDialog() {
-        $('.dialog-password').show();
+        $('#dialog-server').show();
     }
 
     function closeServerDialog() {
-        $('.dialog-password').hide();
+        $('#dialog-server').hide();
+    }
+
+    function openNodeDialog() {
+        $('#dialog-node').show();
+    }
+
+    function closeNodeDialog() {
+        $('#dialog-node').hide();
     }
 
     //cur_username
