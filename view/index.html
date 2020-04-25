@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport"
           content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no"/>
-    <title>File Browser</title>
+    <title>Frpc</title>
     <link rel="stylesheet" href="resource/css/normalize.css">
     <link rel="stylesheet" href="resource/css/main.css">
 </head>
@@ -38,13 +38,23 @@
             <div class="k">服务器设置:</div>
             <div class="v"><i class="ico-set"></i></div>
 
-            <div class="sub">服务器:-.-.-.- 端口:---- 协议:---</div>
+            <div class="sub">服务器：-.-.-.- 端口：---- 协议：--- 多路复用：--</div>
         </h2>
         <div class="ifnonehide">
             <ul class="defaulthide " id="itemlist">
+
+                <!--                <li>-->
+                <!--                    <div class="name">{$nodename} <font size="1" color="blue">{$custom_domains}</font></div>-->
+                <!--                    <div class="local">IP：{$local_ip} 端口：{$local_port}</div>-->
+                <!--                    <div class="remote">远程端口：{$lremote_port} 子域名:{$subdomain}</div>-->
+                <!--                    <div class="icon">{$type}</div>-->
+                <!--                    <div class="righticon"></div>-->
+                <!--                </li>-->
+
             </ul>
             <div class="footer">
-                <div class="button" onclick="openNodeDialog();" id="addnode" style="font-size: 30px;line-height: 30px;">+
+                <div class="button" onclick="openNodeDialog();" id="addnode" style="font-size: 30px;line-height: 30px;">
+                    +
                 </div>
             </div>
         </div>
@@ -108,12 +118,22 @@
             <div class="body">
                 <div class="input-box">
                     <label>服务器：</label>
-                    <input type="text" value="" name="host"/>
+                    <input type="text" value="" name="server_addr"/>
                 </div>
                 <div class="note note-username">服务器 IP 或者域名</div>
                 <div class="input-box">
+                    <!--label>协议：</label-->
+                    <select name="protocol">
+                        <option value="">请选择协议</option>
+                        <option value="tcp"> TCP</option>
+                        <!--option value="udp">UDP</option-->
+                        <option value="kcp">KCP</option>
+                    </select>
+                </div>
+                <div class="note note-password">服务器协议</div>
+                <div class="input-box">
                     <label>端口：</label>
-                    <input type="number" value="" name="port"/>
+                    <input type="number" value="" name="server_port"/>
                 </div>
                 <div class="note note-username">服务器端口</div>
                 <div class="input-box">
@@ -121,16 +141,11 @@
                     <input type="text" value="" name="token"/>
                 </div>
                 <div class="note note-username">服务器密码</div>
-                <div class="input-box">
-                    <!--label>协议：</label-->
-                    <select name="protocol">
-                        <option value="">请选择通信协议</option>
-                        <option value="tcp"> TCP</option>
-                        <!--option value="udp">UDP</option-->
-                        <option value="kcp">KCP</option>
-                    </select>
+                <div class="input-box" style="margin: 5px auto 5px; border: none">
+                    <span>多路复用：</span>
+                    <input type="checkbox" name="tcp_mux"/>
                 </div>
-                <div class="note note-password">服务器密码</div>
+
                 <button class="btn-confirm">确定</button>
             </div>
         </div>
@@ -150,6 +165,16 @@
                 <div class="input-box">
                     <label>名称：</label>
                     <input type="text" placeholder="请不要使用中文" value="" name="name"/>
+                </div>
+                <div class="input-box" style="margin-top: 5px;">
+                    <select name="type" style="padding-left: 10px">
+                        <option value="">请选择协议</option>
+                        <option value="tcp"> TCP</option>
+                        <option value="udp">UDP</option>
+                        <option value="http">HTTP</option>
+                        <option value="https">https</option>
+                        <option value="stcp">stcp</option>
+                    </select>
                 </div>
                 <div class="input-box" style="margin-top: 5px;">
                     <label>内网IP：</label>
@@ -173,23 +198,17 @@
                     <label>绑定域名：</label>
                     <input type="text" placeholder="custom_domains" value="" name="custom_domains"/>
                 </div>
-                <div class="input-box" style="margin-top: 5px;">
-                    <select name="type" style="padding-left: 10px">
-                        <option value="">请选择通信协议</option>
-                        <option value="tcp"> TCP</option>
-                        <option value="udp">UDP</option>
-                        <option value="http">HTTP</option>
-                        <option value="https">https</option>
-                        <option value="stcp">stcp</option>
-                    </select>
-                </div>
+
                 <div class="input-box" style="margin: 5px auto 5px; border: none">
                     <span>压缩：</span>
                     <input type="checkbox" name="use_compression"/>
                     <span>加密：</span>
                     <input type="checkbox" name="use_encryption"/>
                 </div>
-                <button class="btn-confirm">确定</button>
+                <div style="text-align: center">
+                    <button id="save" class="btn-confirm">确定</button>
+                    <button id="delete" class="btn-confirm btn-delete hide">删除</button>
+                </div>
             </div>
         </div>
         <!--div class="desc">
@@ -203,8 +222,7 @@
 <script src="resource/js/jsencrypt.js"></script>
 <script src="http://app.miwifi.com/js/router_request.js"></script>
 <script type="tmpl/text" id="nodeitem">
-
-            <li>
+            <li  onclick="javascript:editItem({$itemindex});">
                 <div class="name">{$nodename}  <font size="1" color="blue">{$custom_domains}</font></div>
                 <div class="local">IP：{$local_ip} 端口：{$local_port}</div>
                 <div class="remote">远程端口：{$lremote_port} 子域名:{$subdomain}</div>
@@ -212,11 +230,40 @@
                 <div class="righticon"></div>
             </li>
 
+
+
 </script>
+
+<script type="tmpl/text" id="servertpl">
+[common]
+server_addr = {$server_addr}
+server_port = {$server_port}
+token = {$token}
+log_file = /frpc.log
+log_level = info
+log_max_days = 3
+tcp_mux = {$tcp_mux}
+protocol = {$protocol}
+login_fail_exit = false
+user = {$user}
+
+</script>
+<script type="tmpl/text" id="itemtpl">
+[{$nodename}]
+type = {$type}
+local_ip = {$local_ip}
+local_port = {$local_port}
+use_encryption = {$use_encryption}
+use_compression = {$use_compression}
+subdomain = {$subdomain}
+custom_domains = {$custom_domains}
+
+</script>
+
 
 <script>
     var appId = "2882303761517415902";
-    var nodeList = [];
+    var config = {server: {}, nodeList: []};
 
     var DEBUG = false;
     var lock = false;
@@ -426,7 +473,7 @@
         var url = '/api-third-party/service/datacenter/config_info';
         var data = {
             appId: appId,
-            key: 'server'
+            key: 'config'
         };
         if (DEBUG) {
             $.extend(data, {deviceId: deviceId});
@@ -437,19 +484,16 @@
             dataType: 'json',
             data: data,
             success: function (data) {
-                //toast(data);
+                //alert(data);
                 data = $.parseJSON(data);
                 if (data.code == 0) {
-                    var serverStr = decodeURIComponent(data.value);
-                    var arr = serverStr.split('|||');
-                    if (arr[1] != '') {
-                        server = $.parseJSON(arr[1]);
-                        $('.dialog-server').find('[name=host]').val(server.host);
-                        $('.dialog-server').find('[name=port]').val(server.port);
-                        $('.dialog-server').find('[name=token]').val(server.token);
-                        $('.dialog-server').find('[name=protocol]').val(server.protocol);
-                        $('.sub').html('服务器:' + server.host + ' 端口:' + server.port + ' 协议:' + server.protocol);
+                    if (data.value.length > 0) {
+                        config = $.parseJSON(decodeURIComponent(data.value));
+                        //alert(decodeURIComponent(data.value));
+                        initServer();
+                        initNodeList();
                     }
+                    //location.reload(1);
                 } else {
                     $('#bkspace').html(data.msg);
                 }
@@ -503,28 +547,102 @@
 
     }
 
-    String.prototype.format = function () {
-        var formatted = this;
-        for (var prop in arguments[0]) {
-            var regexp = new RegExp('\\{' + prop + '\\}', 'gi');
-            formatted = formatted.replace(regexp, arguments[0][prop]);
-        }
-        return formatted;
-    };
 
-    function setServer(host, port, token, protocol) {
-
-        jsondata = {host: host, port: port, token: token, protocol: protocol, user: "router"};
-        var server = ("[common]\nserver_addr = {host}\nserver_port = {port}\ntoken = {token}\nlog_file = /dev/null\nlog_level = info\nlog_max_days = 3\ntcp_mux = true\nprotocol = {protocol}\nlogin_fail_exit = false\nuser = {user}\n")
-            .format(jsondata);
-        server = encodeURIComponent(server + "|||" + JSON.stringify(jsondata));
-
+    function syncConfig(type) {
+        $('#loading').text('正在' + '同步配置' + '.').show();
+        var url = '/api-third-party/service/datacenter/set_config';
         var data = {
             appId: appId,
-            key: 'server',
-            value: server
         };
+        //sync config
+        if (type == 'base') {
+            data.key = 'config';
+            data.value = encodeURIComponent(JSON.stringify(config));
+            //alert(JSON.stringify(config));
+            //alert(JSON.stringify(data));
+
+            routerRequest.request({
+                path: url,
+                type: "GET",
+                dataType: 'json',
+                data: data,
+                success: function (data) {
+                    data = $.parseJSON(data);
+                    if (data.code == 0) {
+                        $('#loading').text('正在' + '同步配置' + '..').show();
+                        syncBaseIni();
+                        //toast('设置成功1');
+                        //location.reload(1);
+                    } else {
+                        $('#loading').hide();
+                        toast(data.msg);
+                    }
+                },
+                error: function () {
+                    $('#loading').hide();
+                    toast('网络异常，请重试');
+                }
+            });
+        } else {
+            advance = $("#textarea").val();
+            advance = encodeURIComponent(advance);
+
+            data.key = 'advanceini';
+            data.value = advance;
+
+            routerRequest.request({
+                path: url,
+                type: "GET",
+                dataType: 'json',
+                data: data,
+                success: function (data) {
+                    data = $.parseJSON(data);
+                    if (data.code == 0) {
+                        toast('设置成功');
+                        location.reload(1);
+                    } else {
+                        $('#loading').hide();
+                        toast(data.msg);
+                    }
+                },
+                error: function () {
+                    $('#loading').hide();
+                    toast('网络异常，请重试');
+                }
+            });
+
+        }
+
+        //initServer();
+        //initNodeList();
+
+
+    }
+
+    function syncBaseIni(){
+        //sync ini
+        var servertpl = $('#servertpl').html();
+        var serverstr = tmpl(servertpl, config.server);
+
+        var itemtpl = $('#itemtpl').html();
+        var itemstr = '';
+
+        if (config.nodeList.length > 0) {
+            $.each(config.nodeList, function (index, value) {
+                value.itemindex = index;
+                itemstr += tmpl(itemtpl, value);
+            });
+        }
+        var baseconfigini = serverstr + itemstr;
+
+        alert(baseconfigini);
+        alert(encodeURIComponent(baseconfigini));
         var url = '/api-third-party/service/datacenter/set_config';
+        var data = {
+            appId: appId,
+            key: 'baseini',
+        };
+        data.value = encodeURIComponent(baseconfigini);
         routerRequest.request({
             path: url,
             type: "GET",
@@ -533,17 +651,23 @@
             success: function (data) {
                 data = $.parseJSON(data);
                 if (data.code == 0) {
-                    toast('设置成功');
-                    location.reload(1);
+                    $('#loading').hide();
+                    //toast('设置成功2');
+                    //location.reload(1);
+                    initNodeList();
+                    initServer();
                 } else {
+                    $('#loading').hide();
                     toast(data.msg);
                 }
             },
             error: function () {
+                $('#loading').hide();
                 toast('网络异常，请重试');
             }
         });
     }
+
     var tmpl = (function () {
         /*
          sArrName 拼接字符串的变量名。
@@ -712,15 +836,15 @@
         };
     }());
 
-    initNodeList();
-    function initNodeList(){
+    function initNodeList() {
         var tpl = $('#nodeitem').html();
         var container = $('#itemlist');
         var htmlarr = [];
-        console.log(nodeList);
-        itemhtml='';
-        if (nodeList.length > 0) {
-            $.each(nodeList,function(index,value){
+        console.log(config);
+        itemhtml = '';
+        if (config.nodeList.length > 0) {
+            $.each(config.nodeList, function (index, value) {
+                value.itemindex = index;
                 itemhtml += tmpl(tpl, value);
             });
 
@@ -730,6 +854,40 @@
             container.html('<li style="padding:0;margin:0; line-height:180px;text-align: center;color: white;">暂时没有记录</li>');
         }
     }
+
+    function editItem(itemindex) {
+        openNodeDialog();
+        data = config.nodeList[itemindex];
+
+        $('#dialog-node').find('[name=name]').val(data.nodename);
+        $('#dialog-node').find('[name=local_ip]').val(data.local_ip);
+        $('#dialog-node').find('[name=local_port]').val(data.local_port);
+        $('#dialog-node').find('[name=remote_port]').val(data.remote_port);
+        $('#dialog-node').find('[name=subdomain]').val(data.subdomain);
+        $('#dialog-node').find('[name=custom_domains]').val(data.custom_domains);
+        $('#dialog-node').find('[name=type]').val(data.type);
+        $('#dialog-node').find('[name=use_compression]').prop("checked", data.use_compression);
+        $('#dialog-node').find('[name=use_encryption]').prop("checked", data.use_encryption);
+        $('#dialog-node button').removeClass("btn-confirm");
+        $('#dialog-node button').addClass("btn-edit");
+        $('#dialog-node #save').val("保存");
+        $('#dialog-node button').prop("itemindex",itemindex);
+        $('#dialog-node .btn-delete').show();
+
+    }
+
+    function initServer() {
+
+        $('.dialog-server').find('[name=server_addr]').val(config.server.server_addr);
+        $('.dialog-server').find('[name=server_port]').val(config.server.server_port);
+        $('.dialog-server').find('[name=token]').val(config.server.token);
+        $('.dialog-server').find('[name=protocol]').val(config.server.protocol);
+        $('.dialog-server').find('[name=tcp_mux]').val(config.server.tcp_mux);
+        $('.sub').html('服务器:' + config.server.server_addr + ' 端口:' + config.server.server_port +
+            ' 协议:' + config.server.protocol + ' 多路复用：' + config.server.tcp_mux);
+
+    }
+
     $(document).ready(function () {
 
         $('#addnode').on('blur', function () {
@@ -767,41 +925,48 @@
             setType(encodeURIComponent($('#bksizeauto').val()));
         });
         $('#dialog-server .btn-confirm').on('click', function () {
-            host = $(this).parent().find('[name=host]').val();
-            port = $(this).parent().find('[name=port]').val();
-            token = $(this).parent().find('[name=token]').val();
-            protocol = $(this).parent().find('[name=protocol]').val();
-            if (host.length == 0) {
+            var server = {
+                server_addr: $(this).parent().find('[name=server_addr]').val(),
+                server_port: $(this).parent().find('[name=server_port]').val(),
+                token: $(this).parent().find('[name=token]').val(),
+                tcp_mux: $(this).parent().find('[name=tcp_mux]').prop('checked'),
+                protocol: $(this).parent().find('[name=protocol]').val(),
+                user: "mi-router"
+            }
+            if (server.server_addr.length == 0) {
                 toast("服务器不能为空")
                 return false;
             }
-            if (port.length == 0) {
+            if (server.server_port.length == 0) {
                 toast("请设置端口")
                 return false;
             }
-            if (token.length == 0) {
+            if (server.token.length == 0) {
                 toast("请设置密码")
                 return false;
             }
-            if (protocol.length == 0) {
+            if (server.protocol.length == 0) {
                 toast("请选择协议")
                 return false;
             }
-            setServer(host, port, token, protocol)
+            config.server = server;
+            //alert(JSON.stringify(config));
+            syncConfig('base');
+            closeServerDialog();
         });
-        $('#dialog-node .btn-confirm').on('click', function () {
-
+        $('#dialog-node #save').on('click', function () {
             data = {
-                nodename: $(this).parent().find('[name=name]').val(),
-                local_ip: $(this).parent().find('[name=local_ip]').val(),
-                local_port: $(this).parent().find('[name=local_port]').val(),
-                remote_port: $(this).parent().find('[name=remote_port]').val(),
-                subdomain: $(this).parent().find('[name=subdomain]').val(),
-                custom_domains: $(this).parent().find('[name=custom_domains]').val(),
-                type: $(this).parent().find('[name=type]').val(),
-                use_compression: $(this).parent().find('[name=use_compression]').prop('checked'),
-                use_encryption: $(this).parent().find('[name=use_encryption]').prop('checked')
+                nodename: $('#dialog-node').find('[name=name]').val(),
+                local_ip: $('#dialog-node').find('[name=local_ip]').val(),
+                local_port: $('#dialog-node').find('[name=local_port]').val(),
+                remote_port: $('#dialog-node').find('[name=remote_port]').val(),
+                subdomain: $('#dialog-node').find('[name=subdomain]').val(),
+                custom_domains: $('#dialog-node').find('[name=custom_domains]').val(),
+                type: $('#dialog-node').find('[name=type]').val(),
+                use_compression: $('#dialog-node').find('[name=use_compression]').prop('checked'),
+                use_encryption: $('#dialog-node').find('[name=use_encryption]').prop('checked')
             }
+
             if (data.nodename.length == 0) {
                 toast("名称不能为空！")
                 return false;
@@ -822,60 +987,34 @@
                 toast("请选择协议")
                 return false;
             }
-            nodeList.push(data);
-            nodeList.push(data);
-            nodeList.push(data);
-            nodeList.push(data);
-            nodeList.push(data);
-            nodeList.push(data);
-            nodeList.push(data);
-            nodeList.push(data);
-            nodeList.push(data);
-            nodeList.push(data);
-            nodeList.push(data);
-            nodeList.push(data);
-            nodeList.push(data);
-            nodeList.push(data);
-            initNodeList();
+            if (!isNaN($('#dialog-node #save').prop('itemindex'))){
+                config.nodeList[$(this).prop('itemindex')] = data;
+            }else{
+                config.nodeList.push(data);
+            }
+
+            //console.log(config);
+            syncConfig('base');
             closeNodeDialog();
 
         });
+        $('#dialog-node #delete').on('click', function () {
+            config.nodeList.splice($(this).prop("itemindex"), 1);
+            syncConfig('base');
+            closeNodeDialog();
+        });
+
         getStatus();
         getType();
         getFrpcIni();
         getServer();
         $("#button").on("click", function () {
-
-            var url = '/api-third-party/service/datacenter/set_config';
             frpc_config = $("#textarea").val();
             if (frpc_config.length == 0) {
                 toast("请添加配置");
                 return;
             }
-            frpc_config = encodeURIComponent(frpc_config);
-            var data = {
-                appId: appId,
-                key: 'frpc_ini',
-                value: frpc_config
-            };
-            routerRequest.request({
-                path: url,
-                type: "GET",
-                dataType: 'json',
-                data: data,
-                success: function (data) {
-                    data = $.parseJSON(data);
-                    if (data.code == 0) {
-                        toast('设置成功');
-                        location.reload(1);
-                    } else {
-                        toast(data.msg);
-                    }
-                },
-                error: function () {
-                    toast('网络异常，请重试');
-                }
-            });
+            syncConfig("adavnce");
         });
     });
 
@@ -888,14 +1027,22 @@
     }
 
     function openNodeDialog() {
+        $("#dialog-node input").val("");
+        $("#dialog-node select").val("");
+        //$("#dialog-node input[name='checkbox']").attr("checked","true");
+        $("#dialog-node input[type='checkbox']").removeAttr("checked");
+        $('#dialog-node button').removeClass("btn-edit");
+        $('#dialog-node button').addClass("btn-confirm");
+        $('#dialog-node button').removeProp("itemindex");
+
+        $('#dialog-node #delete').hide();
         $('#dialog-node').show();
+
     }
 
     function closeNodeDialog() {
         $('#dialog-node').hide();
     }
-
-    //cur_username
 
 
 </script>

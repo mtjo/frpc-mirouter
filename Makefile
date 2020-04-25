@@ -30,5 +30,5 @@ clean:
 package: 
 	cp start_script build/
 	cp startFrpc build/
-	#cp -rf bin/* build/bin/
+	cp -rf bin/* build/bin/
 	$(ROOTDIR)/plugin_packager_x64

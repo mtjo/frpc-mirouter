@@ -22,7 +22,7 @@ ol,ul,li { margin: 0; padding: 0;list-style: none;  }
 ol{margin:0 10px; padding:0 0 0 6px;}
 ol li{padding: 0; margin: 0; line-height: 1.5em; margin: 0 0 8px 0; color: #404040; font-size: 14px;}
 
-.loading{background: black; height: 40px; width: 100px; line-height: 40px; position: absolute; bottom: 40px; margin:0 auto; color: #fff; text-align: center; left: 50%; margin-left: -50px; -webkit-transition:all ease-out .2s; opacity: 0.5;}
+.loading{background: black; height: 40px; width: 100px; line-height: 40px; position: absolute; bottom: 40px; margin:0 auto; color: #fff; text-align: center; left: 50%; margin-left: -50px; -webkit-transition:all ease-out .2s; opacity: 0;}
 .bkspaceshow  { margin: 10px;}
 .btn-group {overflow: hidden; overflow: hidden; border: 1px #2288dd solid; border-radius: 5px; background: #fff;}
 .btn-group .btn {float: left; -webkit-box-sizing:border-box; width: 50%; border-left: 1px #2288dd solid;
@@ -268,6 +268,24 @@ height:38px; line-height: 38px; font-size: 14px; -webkit-boxsizing:border-box; b
     margin: 0 auto;
 }
 
+.dialog-server .btn-edit {
+    border: 1px #d9d9d9 solid; border-radius: 40px;
+    height: 40px;
+    color: #1782DD;
+    font-size: 15px;
+    background: #fff;
+    outline: none;
+    margin: 0 auto;
+    width: 45%;
+    border: 1px #d9d9d9 solid; border-radius: 40px;
+    display: inline-block;
+}
+
+.dialog-server .btn-delete {
+    color: #FFFFFF;
+    background: #FF0000;
+}
+
 .dialog-server .desc {
     border-top: 1px dashed #979797;
     padding: 10px;
@@ -421,7 +439,6 @@ ul li .icon {font-size: 10px; background: black; position: absolute; left: 0;top
 ul li .righticon {font-size: 10px; background:url("../img/edit.png"); background-position: center; background-repeat: no-repeat; position: absolute; right: 0;top: 0; color: #FFFFFF;height: 57px;width: 58px; line-height: 60px;text-align: center;}
 
 
-.loading{background: black; height: 40px; width: 100px; line-height: 40px; position: absolute; bottom: 40px; margin:0 auto; color: #fff; text-align: center; left: 50%; margin-left: -50px; -webkit-transition:all ease-out .2s; opacity: 0;}
 .tip {margin: 0 10px 0; line-height: 1.5;}
 .hide {display: none;}
 .lessimgintd{max-width:12%;vertical-align:middle; padding: 0 0 0 3px; margin-right:4px}

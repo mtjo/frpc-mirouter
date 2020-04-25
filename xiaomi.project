@@ -11,7 +11,7 @@ introduction= "frpc客户端小米路由器插件,frp 是一个可用于内网�
 summary= "frp 是一个可用于内网穿透的高性能的反向代理应用，支持 tcp, udp, http, https 协议。";
 
 #已安装插件图标URL。
-installed_icon= "http://file.market.xiaomi.com/download/AppStore/06ccd84a1755e459139670c2c8db9fe94ff5ce158";
+installed_icon= "http://file.market.xiaomi.com/download/AppStore/0cccd84a1755e459139670c2c89b9fe94ff5ce158";
 
 #插件详情图标URL。
 detail_image= "http://file.market.xiaomi.com/download/AppStore/08ccd4fa155fe2595f9673c2c0eb9ce14674358f8";
@@ -23,7 +23,7 @@ market_icon="http://file.market.xiaomi.com/download/AppStore/0cccd84a1755e459139
 developer= "MTJO";
 
 #请输入插件版本号(格式：xx.xx.xx)。
-version= "1.0.0";
+version= "1.0.4";
 
 #请输入插件控制页面url。
 control_url= "http://mtjo.net/frpc-mirouter/index.html";

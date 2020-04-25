@@ -29,10 +29,10 @@ elif [ "$model" == "R3" -o "$model" == "R3P" -o "$model" == "R3G" -o "$model" ==
 	app_path='/bin/frpc_mips'
 fi
 
-start app_path
-if [[ -f "/frpc.ini" ]]; then
-    $app_path -c /frpc.ini > $logpath 2>&1
-fi
+#start app_path
+#if [[ -f "/frpc.ini" ]]; then
+#    $app_path -c /frpc.ini > $logpath 2>&1
+#fi
 
 PID=$(pidof $app_path)
 
