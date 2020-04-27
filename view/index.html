@@ -74,8 +74,9 @@
     <ol>
         <li>1: frpc客户端小米路由器插件,frp 是一个可用于内网穿透的高性能的反向代理应用，支持 tcp, udp, http, https 协议。
         </li>
-        <li>2: 插件启用后可以通过 http://路由IP地址:端口 访问，（默认账号和密码都是admin，登录后自行修改）</li>
-        <li>3: 建议配置 Frpc 插件使用,可以实现公网域名访问</li>
+        <li>2: 有问题请在请github提issues <a href="https://github.com/mtjo/frpc-mirouter/issues">github.com/mtjo/frpc-mirouter</a></li>
+        <li>3: <a href="https://github.com/mtjo/frpc-mirouter">★ Star & fork 点起来，方便后期更新版本</a></li>
+
 
     </ol>
 </div>
@@ -143,7 +144,7 @@
                 <div class="note note-username">服务器密码</div>
                 <div class="input-box" style="margin: 5px auto 5px; border: none">
                     <span>多路复用：</span>
-                    <input type="checkbox" name="tcp_mux"/>
+                    <input type="checkbox" checked="checked" name="tcp_mux"/>
                 </div>
 
                 <button class="btn-confirm">确定</button>
@@ -169,11 +170,11 @@
                 <div class="input-box" style="margin-top: 5px;">
                     <select name="type" style="padding-left: 10px">
                         <option value="">请选择协议</option>
+                        <option value="http">HTTP</option>
+                        <option value="https">HTTPS</option>
                         <option value="tcp"> TCP</option>
                         <option value="udp">UDP</option>
-                        <option value="http">HTTP</option>
-                        <option value="https">https</option>
-                        <option value="stcp">stcp</option>
+                        <option value="stcp">STCP</option>
                     </select>
                 </div>
                 <div class="input-box" style="margin-top: 5px;">
@@ -229,9 +230,6 @@
                 <div class="icon">{$type} </div>
                 <div class="righticon"></div>
             </li>
-
-
-
 </script>
 
 <script type="tmpl/text" id="servertpl">
@@ -550,7 +548,7 @@ custom_domains = {$custom_domains}
 
 
     function syncConfig(type) {
-        $('#loading').text('正在' + '同步配置' + '.').show();
+        toast('正在' + '同步配置' + '...');
         var url = '/api-third-party/service/datacenter/set_config';
         var data = {
             appId: appId,
@@ -570,7 +568,7 @@ custom_domains = {$custom_domains}
                 success: function (data) {
                     data = $.parseJSON(data);
                     if (data.code == 0) {
-                        $('#loading').text('正在' + '同步配置' + '..').show();
+                        toast('正在' + '同步配置' + '...');
                         syncBaseIni();
                         //toast('设置成功1');
                         //location.reload(1);
@@ -599,7 +597,7 @@ custom_domains = {$custom_domains}
                 success: function (data) {
                     data = $.parseJSON(data);
                     if (data.code == 0) {
-                        toast('设置成功');
+                        toast('正在' + '重启服务' + '...');
                         location.reload(1);
                     } else {
                         $('#loading').hide();
