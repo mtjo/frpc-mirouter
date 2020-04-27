@@ -1,4 +1,2 @@
-# frpc
-# frpc-mirouter
-# mtjo-frpc-mirouter
-# mtjo-frpc-mirouter
+# frpc for mirouter
+
