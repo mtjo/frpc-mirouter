@@ -225,7 +225,7 @@
             <li  onclick="javascript:editItem({$itemindex});">
                 <div class="name">{$nodename}  <font size="1" color="blue">{$custom_domains}</font></div>
                 <div class="local">IP：{$local_ip} 端口：{$local_port}</div>
-                <div class="remote">远程端口：{$lremote_port} 子域名:{$subdomain}</div>
+                <div class="remote">远程端口：{$remote_port} 子域名:{$subdomain}</div>
                 <div class="icon">{$type} </div>
                 <div class="righticon"></div>
             </li>
@@ -253,6 +253,7 @@ user = {$user}
 type = {$type}
 local_ip = {$local_ip}
 local_port = {$local_port}
+remote_port = {$remote_port}
 use_encryption = {$use_encryption}
 use_compression = {$use_compression}
 subdomain = {$subdomain}
@@ -613,10 +614,6 @@ custom_domains = {$custom_domains}
 
         }
 
-        //initServer();
-        //initNodeList();
-
-
     }
 
     function syncBaseIni(){
@@ -635,8 +632,8 @@ custom_domains = {$custom_domains}
         }
         var baseconfigini = serverstr + itemstr;
 
-        alert(baseconfigini);
-        alert(encodeURIComponent(baseconfigini));
+        //alert(baseconfigini);
+        //alert(encodeURIComponent(baseconfigini));
         var url = '/api-third-party/service/datacenter/set_config';
         var data = {
             appId: appId,
@@ -976,7 +973,7 @@ custom_domains = {$custom_domains}
                 return false;
             }
             if (data.local_port.length == 0) {
-                toast("远程端口不能为空！")
+                toast("本地端口不能为空！")
                 return false;
             }
             if (data.remote_port.length == 0) {
