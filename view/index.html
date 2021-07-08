@@ -419,7 +419,9 @@ custom_domains = {$custom_domains}
                 data = $.parseJSON(data);
                 if (data.code == 0) {
                     toast('设置成功');
-                    location.reload(1);
+                    $('.bkspaceset').toggle();
+                    $('.mask').toggle();
+                    //location.reload(1);
                 } else {
                     toast(data.msg);
                 }
