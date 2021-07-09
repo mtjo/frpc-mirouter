@@ -44,7 +44,7 @@ sdk_level= "5";
 supported_rom= "miwifi_rom";
 
 #是否需要访问公共存储目录
-access_userdata= "true";
+access_userdata= "false";
 
 access_proc = "true";
 
