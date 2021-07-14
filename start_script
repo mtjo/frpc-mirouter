@@ -1,1 +1,4 @@
-RUN startFrpc
+RUN initFrpc
+RUN frpc -c /frpc.ini
+STOP killall frpc
+STOP killall initFrpc

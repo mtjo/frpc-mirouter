@@ -74,8 +74,15 @@
     <ol>
         <li>1: frpc客户端小米路由器插件,frp 是一个可用于内网穿透的高性能的反向代理应用，支持 tcp, udp, http, https 协议。
         </li>
-        <li>2: 有问题请在请github提issues <a href="https://github.com/mtjo/frpc-mirouter/issues">github.com/mtjo/frpc-mirouter</a></li>
-        <li>3: <a href="https://github.com/mtjo/frpc-mirouter">★ Star & fork 点起来，方便后期更新版本</a></li>
+        <li>2: 公共配置必须设置 admin_port=7400 以便执行 frpc relad 重载配置文件，否则每次修改配置都要手动点击：关闭->开打，来重启frpc程序才能使配置生效 <br/>示例： <pre>
+admin_port = 7400
+admin_user = admin
+admin_pwd = admin           
+            </pre>
+            加上admin_port=7400 后也可以通过路由器ip：7400 来管理frpc状态
+        </li>
+        <li>3: 有问题请在请github提issues <a href="https://github.com/mtjo/frpc-mirouter/issues">github.com/mtjo/frpc-mirouter</a></li>
+        <li>4: <a href="https://github.com/mtjo/frpc-mirouter">★ Star & fork 点起来，方便后期更新版本</a></li>
 
 
     </ol>
@@ -115,14 +122,14 @@
         <a href="javascript:closeServerDialog();" class="btn-close"></a>
 
         <div class="form-box">
-            <div class="head">设置Frp服务器</div>
+            <div class="head">设置Frp公共配置</div>
             <div class="body">
-                <div class="input-box">
+                <div class="note note-username">服务器配置</div>
+                <div class="input-box" style="margin-top:2px">
                     <label>服务器：</label>
                     <input type="text" value="" name="server_addr"/>
                 </div>
-                <div class="note note-username">服务器 IP 或者域名</div>
-                <div class="input-box">
+                <div class="input-box" style="margin-top:2px">
                     <!--label>协议：</label-->
                     <select name="protocol">
                         <option value="">请选择协议</option>
@@ -131,23 +138,37 @@
                         <option value="kcp">KCP</option>
                     </select>
                 </div>
-                <div class="note note-password">服务器协议</div>
-                <div class="input-box">
+                <!-- <div class="note note-password">服务器协议</div> -->
+                <div class="input-box" style="margin-top:2px">
                     <label>端口：</label>
-                    <input type="number" value="" name="server_port"/>
+                    <input type="number" value="" placeholder="7000" name="server_port"/>
                 </div>
-                <div class="note note-username">服务器端口</div>
-                <div class="input-box">
+                <!-- <div class="note note-username">服务器端口</div> -->
+                <div class="input-box" style="margin-top:2px">
                     <label>密码：</label>
-                    <input type="text" value="" name="token"/>
+                    <input type="text" value="" placeholder="token" name="token"/>
                 </div>
-                <div class="note note-username">服务器密码</div>
+                <!-- <div class="note note-username">服务器密码</div> -->
                 <div class="input-box" style="margin: 5px auto 5px; border: none">
                     <span>多路复用：</span>
                     <input type="checkbox" checked="checked" name="tcp_mux"/>
                 </div>
 
-                <button class="btn-confirm">确定</button>
+                <div class="note note-username">后台管理</div>
+                <div class="input-box" style="margin-top:2px">
+                    <label>端口：</label>
+                    <input type="number" value="7400" placeholder="后台管理端口" name="admin_port"/>
+                </div>
+                <div class="input-box" style="margin-top:2px">
+                    <label>用户：</label>
+                    <input type="text" value="admin" placeholder="后台管理用户" name="admin_user"/>
+                </div>
+                <div class="input-box" style="margin-top:2px">
+                    <label>密码：</label>
+                    <input type="text" value="admin" placeholder="后台管理密码" name="admin_pwd"/>
+                </div>
+
+                <button class="btn-confirm" style="margin-top:5px">确定</button>
             </div>
         </div>
         <!--div class="desc">
@@ -242,6 +263,9 @@ log_level = info
 log_max_days = 3
 tcp_mux = {$tcp_mux}
 protocol = {$protocol}
+admin_port = {$admin_port}
+admin_user = {$admin_user}
+admin_pwd = {$admin_pwd}
 login_fail_exit = false
 user = {$user}
 
@@ -419,8 +443,8 @@ custom_domains = {$custom_domains}
                 data = $.parseJSON(data);
                 if (data.code == 0) {
                     toast('设置成功');
-                    $('.bkspaceset').toggle();
-                    $('.mask').toggle();
+                    // $('.bkspaceset').toggle();
+                    // $('.mask').toggle();
                     //location.reload(1);
                 } else {
                     toast(data.msg);
@@ -428,6 +452,8 @@ custom_domains = {$custom_domains}
             },
             error: function () {
                 toast('网络异常，请重试');
+                toast('设置配置模式失败，重置页面。。。');
+                location.reload();
             }
         });
     }
@@ -599,8 +625,8 @@ custom_domains = {$custom_domains}
                 success: function (data) {
                     data = $.parseJSON(data);
                     if (data.code == 0) {
-                        toast('正在' + '重启服务' + '...');
-                        location.reload(1);
+                        toast('正在' + '重载服务' + '...');
+                        location.reload();
                     } else {
                         $('#loading').hide();
                         toast(data.msg);
@@ -880,6 +906,11 @@ custom_domains = {$custom_domains}
         $('.dialog-server').find('[name=token]').val(config.server.token);
         $('.dialog-server').find('[name=protocol]').val(config.server.protocol);
         $('.dialog-server').find('[name=tcp_mux]').val(config.server.tcp_mux);
+        
+        $('.dialog-server').find('[name=admin_port]').val(config.server.admin_port);
+        $('.dialog-server').find('[name=admin_user]').val(config.server.admin_user);
+        $('.dialog-server').find('[name=admin_pwd]').val(config.server.admin_pwd);
+
         $('.sub').html('服务器:' + config.server.server_addr + ' 端口:' + config.server.server_port +
             ' 协议:' + config.server.protocol + ' 多路复用：' + config.server.tcp_mux);
 
@@ -920,6 +951,8 @@ custom_domains = {$custom_domains}
             e.preventDefault();
             //toast(encodeURIComponent($('#bksizeauto').val()));
             setType(encodeURIComponent($('#bksizeauto').val()));
+            $('.bkspaceset').toggle();
+            $('.mask').toggle();
         });
         $('#dialog-server .btn-confirm').on('click', function () {
             var server = {
@@ -928,6 +961,9 @@ custom_domains = {$custom_domains}
                 token: $(this).parent().find('[name=token]').val(),
                 tcp_mux: $(this).parent().find('[name=tcp_mux]').prop('checked'),
                 protocol: $(this).parent().find('[name=protocol]').val(),
+                admin_port: $(this).parent().find('[name=admin_port]').val(),
+                admin_user: $(this).parent().find('[name=admin_user]').val(),
+                admin_pwd: $(this).parent().find('[name=admin_pwd]').val(),
                 user: "mi-router"
             }
             if (server.server_addr.length == 0) {
@@ -944,6 +980,18 @@ custom_domains = {$custom_domains}
             }
             if (server.protocol.length == 0) {
                 toast("请选择协议")
+                return false;
+            }
+            if (server.admin_port.length == 0) {
+                toast("admin_port不能为空")
+                return false;
+            }
+            if (server.admin_port.length == 0) {
+                toast("admin_pwd不能为空")
+                return false;
+            }
+            if (server.admin_port.length == 0) {
+                toast("admin_user不能为空")
                 return false;
             }
             config.server = server;

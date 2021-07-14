@@ -27,6 +27,6 @@ clean:
 
 package: 
 	cp start_script build/
-	cp startFrpc build/
+	cp script/* build/
 	cp -rf bin/* build/
 	$(ROOTDIR)/plugin_packager_x64
