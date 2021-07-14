@@ -75,11 +75,12 @@
         <li>1: frpc客户端小米路由器插件,frp 是一个可用于内网穿透的高性能的反向代理应用，支持 tcp, udp, http, https 协议。
         </li>
         <li>2: 公共配置必须设置 admin_port=7400 以便执行 frpc relad 重载配置文件，否则每次修改配置都要手动点击：关闭->开打，来重启frpc程序才能使配置生效 <br/>示例： <pre>
+admin_addr = 127.0.0.1
 admin_port = 7400
 admin_user = admin
 admin_pwd = admin           
             </pre>
-            加上admin_port=7400 后也可以通过路由器ip：7400 来管理frpc状态
+            加上以上配置后就可以通过配置http到 127.0.0.1:7400 来管理远程查看frpc状态
         </li>
         <li>3: 有问题请在请github提issues <a href="https://github.com/mtjo/frpc-mirouter/issues">github.com/mtjo/frpc-mirouter</a></li>
         <li>4: <a href="https://github.com/mtjo/frpc-mirouter">★ Star & fork 点起来，方便后期更新版本</a></li>
@@ -259,10 +260,11 @@ server_addr = {$server_addr}
 server_port = {$server_port}
 token = {$token}
 log_file = /frpc.log
-log_level = info
+log_level = error
 log_max_days = 3
 tcp_mux = {$tcp_mux}
 protocol = {$protocol}
+admin_addr = 127.0.0.1
 admin_port = {$admin_port}
 admin_user = {$admin_user}
 admin_pwd = {$admin_pwd}

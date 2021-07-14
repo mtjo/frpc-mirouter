@@ -23,6 +23,12 @@ setconfig() {
 urldecode(){
 	awk 'BEGIN{for(i=0;i<10;i++)hex[i]=i;hex["A"]=hex["a"]=10;hex["B"]=hex["b"]=11;hex["C"]=hex["c"]=12;hex["D"]=hex["d"]=13;hex["E"]=hex["e"]=14;hex["F"]=hex["f"]=15;}{gsub(/\+/," ");i=$0;while(match(i,/%../)){;if(RSTART>1);printf"%s",substr(i,1,RSTART-1);printf"%c",hex[substr(i,RSTART+1,1)]*16+hex[substr(i,RSTART+2,1)];i=substr(i,RSTART+RLENGTH);}print i;}'
 }
+initInFirstRun(){
+	type="%E7%AE%80%E5%8D%95%E8%AE%BE%E7%BD%AE"
+	setconfig type $type
+	setconfig enable on
+
+}
 
 model=$(cat /proc/xiaoqiang/model)
 setconfig model $model
@@ -31,9 +37,7 @@ setconfig model $model
 initConfig() {
 	type=$(getconfig type)
 	if [[ -z "$type" ]]; then
-		type="%E7%AE%80%E5%8D%95%E8%AE%BE%E7%BD%AE"
-		setconfig type $type
-		setconfig enable on
+		initInFirstRun
 	fi
 
 	if [[ "$type" == "%E7%AE%80%E5%8D%95%E8%AE%BE%E7%BD%AE" ]]; then
@@ -50,9 +54,7 @@ LAST_CONFIG_CHANGE=`ls -e /etc/plugin_config |awk '{print $10"-"$7"-"$8" "$9}'`
 #setconfig enable on
 enable="on"
 while [[ "$enable" == "on" ]]; do
-
 	enable=$(getconfig enable)
-	newport=$(getconfig port)
 	if [ "$LAST_CONFIG_CHANGE" != "`ls -e /etc/plugin_config |awk '{print $10"-"$7"-"$8" "$9}'`" ]; then
 		initConfig
 		#reload frpc
