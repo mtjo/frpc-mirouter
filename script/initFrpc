@@ -56,7 +56,7 @@ while [[ "$enable" == "on" ]]; do
 	if [ "$LAST_CONFIG_CHANGE" != "`ls -e /etc/plugin_config |awk '{print $10"-"$7"-"$8" "$9}'`" ]; then
 		initConfig
 		#reload frpc
-		/frpc reload >>a.log
+		/frpc reload 
 	fi
 sleep 3
 done

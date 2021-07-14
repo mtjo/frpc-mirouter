@@ -25,8 +25,16 @@ clean:
 
 .PHONY : clean TaskWatcher
 
+mips: dir makebinary packagemips
+
+packagemips: 
+	cp start_script build/
+	cp script/* build/
+	cp -rf bin/frpc_mips build/frpc
+	$(ROOTDIR)/plugin_packager_x64
+
 package: 
 	cp start_script build/
 	cp script/* build/
-	cp -rf bin/* build/
+	cp -rf bin/frpc build/frpc
 	$(ROOTDIR)/plugin_packager_x64
