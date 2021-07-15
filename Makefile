@@ -31,12 +31,10 @@ packagemips:
 	cp start_script build/
 	cp script/* build/
 	cp -rf bin/frpc_mips build/frpc
-	cp -rf etc build/
 	$(ROOTDIR)/plugin_packager_x64
 
 package: 
 	cp start_script build/
 	cp script/* build/
 	cp -rf bin/frpc build/frpc
-	cp -rf etc build/
 	$(ROOTDIR)/plugin_packager_x64

@@ -27,6 +27,8 @@ initInFirstRun(){
 	type="%E7%AE%80%E5%8D%95%E8%AE%BE%E7%BD%AE"
 	setconfig type $type
 	setconfig enable on
+	setconfig baseini "%5Bcommon%5D%0Alog_file%20%3D%20%2Ffrpc.log%0Alog_level%20%3D%20info%0Alog_max_days%20%3D%203%0Atcp_mux%20%3D%20true%0Aprotocol%20%3D%20tcp%0Aadmin_addr%20%3D%20127.0.0.1%0Aadmin_port%20%3D%207400%0Aadmin_user%20%3D%20admin%0Aadmin_pwd%20%3D%20admin%0Alogin_fail_exit%20%3D%20false%0Auser%20%3D%20mi-router%0A%0A%5Brouter%5D%0Atype%20%3D%20http%0Alocal_ip%20%3D%20127.0.0.1%0Alocal_port%20%3D%2080%0Aremote_port%20%3D%208080%0Ause_encryption%20%3D%20true%0Ause_compression%20%3D%20true%0Asubdomain%20%3D%20router%0Acustom_domains%20%3D%20%0A%0A%5Bfrpadmin%5D%0Atype%20%3D%20http%0Alocal_ip%20%3D%20127.0.0.1%0Alocal_port%20%3D%207400%0Aremote_port%20%3D%208080%0Ause_encryption%20%3D%20true%0Ause_compression%20%3D%20true%0Asubdomain%20%3D%20admin%0Acustom_domains%20%3D%20%0A%0A"
+	setconfig config "%7B%22server%22%3A%7B%22admin_port%22%3A%227400%22%2C%22admin_user%22%3A%22admin%22%2C%22admin_pwd%22%3A%22admin%22%2C%22user%22%3A%22mi-router%22%7D%2C%22nodeList%22%3A%5B%7B%22nodename%22%3A%22router%22%2C%22local_ip%22%3A%22127.0.0.1%22%2C%22local_port%22%3A%2280%22%2C%22remote_port%22%3A%228080%22%2C%22subdomain%22%3A%22router%22%2C%22custom_domains%22%3A%22%22%2C%22type%22%3A%22http%22%2C%22use_compression%22%3Atrue%2C%22use_encryption%22%3Atrue%2C%22itemindex%22%3A0%7D%2C%7B%22nodename%22%3A%22frpadmin%22%2C%22local_ip%22%3A%22127.0.0.1%22%2C%22local_port%22%3A%227400%22%2C%22remote_port%22%3A%228080%22%2C%22subdomain%22%3A%22admin%22%2C%22custom_domains%22%3A%22%22%2C%22type%22%3A%22http%22%2C%22use_compression%22%3Atrue%2C%22use_encryption%22%3Atrue%7D%5D%7D"
 
 }
 
@@ -55,10 +57,12 @@ LAST_CONFIG_CHANGE=`ls -e /etc/plugin_config |awk '{print $10"-"$7"-"$8" "$9}'`
 enable="on"
 while [[ "$enable" == "on" ]]; do
 	enable=$(getconfig enable)
-	if [ "$LAST_CONFIG_CHANGE" != "`ls -e /etc/plugin_config |awk '{print $10"-"$7"-"$8" "$9}'`" ]; then
+	NEW_LAST_CONFIG_CHANGE=`ls -e /etc/plugin_config |awk '{print $10"-"$7"-"$8" "$9}'`
+	if [ "$LAST_CONFIG_CHANGE" != "$NEW_LAST_CONFIG_CHANGE" ]; then
 		initConfig
 		#reload frpc
 		/frpc reload 
+		LAST_CONFIG_CHANGE=$NEW_LAST_CONFIG_CHANGE
 	fi
 sleep 3
 done

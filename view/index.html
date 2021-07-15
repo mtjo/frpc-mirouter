@@ -74,7 +74,8 @@
     <ol>
         <li>1: frpc客户端小米路由器插件,frp 是一个可用于内网穿透的高性能的反向代理应用，支持 tcp, udp, http, https 协议。
         </li>
-        <li>2: 公共配置必须设置 admin_port=7400 以便执行 frpc relad 重载配置文件，否则每次修改配置都要手动点击：关闭->开打，来重启frpc程序才能使配置生效 <br/>示例： <pre>
+        <li>2: 公共配置必须设置 admin_port=7400 以便执行 frpc relad 重载配置文件，否则每次修改配置都要手动点击：关闭->开打，来重启frpc程序才能使配置生效。<br/>
+            <font color="red">*首次安装frp服务没配置，frpc进程起不来，保存好服务配置后也要手动点击：关闭->开打，重启frpc进程</font> <br/>示例： <pre>
 admin_addr = 127.0.0.1
 admin_port = 7400
 admin_user = admin
